@@ -1,26 +1,229 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --primary: #FFCC00;
+  --primary-dark: #E6B800;
+  --secondary: #000000;
+  --accent: #DC143C;
+  --accent-dark: #B01030;
+  --background: #FFFFFF;
+  --background-light: #F8F9FA;
+  --text: #1A1A1A;
+  --text-light: #666666;
 }
 
 body {
+  font-family: 'Inter', system-ui, sans-serif;
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+}
+
+/* Enhanced Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.7), 0 0 40px rgba(220, 20, 60, 0.3); }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+/* Road Sign Inspired Styles */
+.road-sign {
+  background: var(--primary);
+  color: var(--secondary);
+  border: 3px solid var(--secondary);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.road-sign:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 204, 0, 0.4);
+}
+
+.road-sign-red {
+  background: var(--accent);
+  color: var(--background);
+  border: 3px solid var(--secondary);
+  font-weight: 800;
+}
+
+.warning-border {
+  border: 3px solid var(--primary);
+  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
+}
+
+.emergency-glow {
+  box-shadow: 0 0 25px rgba(220, 20, 60, 0.6);
+}
+
+/* Professional Card Styles */
+.pro-card {
+  background: var(--background);
+  border: 2px solid #E5E7EB;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.pro-card:hover {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: var(--primary);
+}
+
+/* Glass Effect for Modern Touch */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Road Pattern Background */
+.road-pattern {
+  background-image: 
+    linear-gradient(90deg, transparent 79px, #E5E7EB 79px, #E5E7EB 81px, transparent 81px),
+    linear-gradient(#E5E7EB 1px, transparent 1px);
+  background-size: 100% 40px, 8px 8px;
+}
+.road-sign {
+  background: #FFCC00;
+  color: #000000;
+  border: 3px solid #000000;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.road-sign::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.road-sign:hover {
+  background: #E6B800;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(255, 204, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.road-sign:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 4px 12px rgba(255, 204, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.road-sign-red {
+  background: #DC143C;
+  color: #FFFFFF;
+  border: 3px solid #000000;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.road-sign-red:hover {
+  background: #B01030;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+}
+
+/* Professional Card Enhancements */
+.pro-card {
+  background: #FFFFFF;
+  border: 2px solid #E5E7EB;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.pro-card:hover {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: #FFCC00;
+  transform: translateY(-2px);
+}
+
+/* Warning and Success States */
+.warning-border {
+  border: 3px solid #FFCC00;
+  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
+}
+
+.success-border {
+  border: 3px solid #10B981;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Text colors for better contrast */
+.text-road-yellow {
+  color: #FFCC00;
+}
+
+.text-road-black {
+  color: #000000;
+}
+
+.bg-road-yellow {
+  background-color: #FFCC00;
+}
+
+.bg-road-black {
+  background-color: #000000;
 }
