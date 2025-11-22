@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Location } from '@/types'
-import { Navigation, ArrowLeft, Satellite, Crosshair, Search } from 'lucide-react'
+import { Navigation, ArrowLeft, Satellite, Crosshair, Search, MapPin, Building, Home } from 'lucide-react'
 import { useGoogleMaps } from '@/hooks/useGoogleMaps'
 
 interface LocationInputProps {
@@ -10,18 +10,204 @@ interface LocationInputProps {
   onLocationSelect?: (location: Location) => void
 }
 
+interface AutocompletePrediction {
+  description: string
+  place_id: string
+  types: string[]
+}
+
 export default function LocationInput({ onBack, onLocationSelect }: LocationInputProps) {
   const [inputAddress, setInputAddress] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [findingCurrentLocation, setFindingCurrentLocation] = useState(false)
   const [showMapView, setShowMapView] = useState(false)
+  const [suggestions, setSuggestions] = useState<AutocompletePrediction[]>([])
+  const [dropdownVisible, setDropdownVisible] = useState(false)
+  const [googleMapsReady, setGoogleMapsReady] = useState(false)
   
-  const { isLoaded: mapsApiReady} = useGoogleMaps()
+  const inputFieldRef = useRef<HTMLInputElement>(null)
+  const suggestionListRef = useRef<HTMLDivElement>(null)
+  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null)
+  const geocodingServiceRef = useRef<google.maps.Geocoder | null>(null)
+
+  const { isLoaded: mapsApiReady } = useGoogleMaps()
+
+  useEffect(() => {
+    const initializeGoogleMaps = () => {
+      if (!window.google?.maps) {
+        console.error('Google Maps JavaScript API is not loaded')
+        return
+      }
+
+      try {
+        if (!window.google.maps.places) {
+          console.error('Google Places library not loaded')
+          return
+        }
+
+        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService()
+        geocodingServiceRef.current = new window.google.maps.Geocoder()
+        setGoogleMapsReady(true)
+      } catch (error) {
+        console.error('Error setting up Google Maps services:', error)
+      }
+    }
+
+    if (window.google?.maps?.places) {
+      initializeGoogleMaps()
+      return
+    }
+
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+    if (existingScript) {
+      const checkInterval = setInterval(() => {
+        if (window.google?.maps?.places) {
+          initializeGoogleMaps()
+          clearInterval(checkInterval)
+        }
+      }, 150)
+      return () => clearInterval(checkInterval)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!inputAddress.trim() || !autocompleteServiceRef.current) {
+      setSuggestions([])
+      setDropdownVisible(false)
+      return
+    }
+
+    const searchDelay = setTimeout(() => {
+      getAddressSuggestions(inputAddress)
+    }, 300)
+
+    return () => clearTimeout(searchDelay)
+  }, [inputAddress])
+
+  const getAddressSuggestions = (searchQuery: string) => {
+    if (!autocompleteServiceRef.current) return
+
+    autocompleteServiceRef.current.getPlacePredictions(
+      {
+        input: searchQuery,
+        componentRestrictions: { country: 'de' },
+        types: ['geocode', 'establishment'],
+        language: 'de',
+        region: 'de'
+      },
+      (searchResults, responseStatus) => {
+        if (responseStatus === window.google.maps.places.PlacesServiceStatus.OK && searchResults) {
+          const relevantResults = searchResults
+            .filter(result => {
+              const isTooGeneral = result.types.includes('country') || 
+                                  result.types.includes('administrative_area_level_1')
+              return !isTooGeneral
+            })
+            .slice(0, 6)
+          
+          setSuggestions(relevantResults)
+          setDropdownVisible(true)
+        } else {
+          setSuggestions([])
+          setDropdownVisible(false)
+        }
+      }
+    )
+  }
+
+  const selectSuggestion = (selectedSuggestion: AutocompletePrediction) => {
+    setInputAddress(selectedSuggestion.description)
+    setDropdownVisible(false)
+    setIsSearching(true)
+
+    if (geocodingServiceRef.current) {
+      geocodingServiceRef.current.geocode(
+        { 
+          placeId: selectedSuggestion.place_id,
+          language: 'de'
+        },
+        (geoResults, geoStatus) => {
+          setIsSearching(false)
+          
+          if (geoStatus === 'OK' && geoResults?.[0]) {
+            const position = geoResults[0].geometry.location
+            const addressParts = geoResults[0].address_components
+            
+            let cleanAddress = selectedSuggestion.description
+            if (selectedSuggestion.types.includes('establishment') && addressParts) {
+              const streetNum = addressParts.find(part => part.types.includes('street_number'))
+              const streetName = addressParts.find(part => part.types.includes('route'))
+              const city = addressParts.find(part => part.types.includes('locality'))
+              
+              if (streetNum && streetName) {
+                cleanAddress = `${streetName.long_name} ${streetNum.long_name}`
+                if (city) {
+                  cleanAddress += `, ${city.long_name}`
+                }
+              }
+            }
+            
+            onLocationSelect?.({
+              address: cleanAddress,
+              latitude: position.lat(),
+              longitude: position.lng()
+            })
+          } else {
+            onLocationSelect?.({
+              address: selectedSuggestion.description,
+              latitude: 53.5511,
+              longitude: 9.9937
+            })
+          }
+        }
+      )
+    } else {
+      setIsSearching(false)
+      onLocationSelect?.({
+        address: selectedSuggestion.description,
+        latitude: 53.5511,
+        longitude: 9.9937
+      })
+    }
+  }
+
+  const handleInputFocus = () => {
+    if (suggestions.length > 0) {
+      setDropdownVisible(true)
+    }
+  }
+
+  const getLocationIcon = (placeTypes: string[]) => {
+    if (placeTypes.includes('street_address') || placeTypes.includes('route')) {
+      return <Home className="w-4 h-4 text-blue-500" />
+    } else if (placeTypes.includes('establishment')) {
+      return <Building className="w-4 h-4 text-green-500" />
+    } else if (placeTypes.includes('locality')) {
+      return <MapPin className="w-4 h-4 text-purple-500" />
+    } else {
+      return <Navigation className="w-4 h-4 text-gray-500" />
+    }
+  }
+
+  const getLocationTypeText = (placeTypes: string[]) => {
+    if (placeTypes.includes('street_address')) {
+      return 'Hausadresse'
+    } else if (placeTypes.includes('establishment')) {
+      return 'Geschäft/Ort'
+    } else if (placeTypes.includes('locality')) {
+      return 'Stadtgebiet'
+    } else if (placeTypes.includes('postal_code')) {
+      return 'PLZ-Bereich'
+    } else if (placeTypes.includes('route')) {
+      return 'Straßenname'
+    } else {
+      return 'Standort'
+    }
+  }
 
   const detectCurrentLocation = () => {
     setIsSearching(true)
     setFindingCurrentLocation(true)
-    
 
     if (!navigator.geolocation) {
       alert('Ihr Browser unterstützt keine Standortermittlung.')
@@ -40,11 +226,9 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
       async (positionData) => {
         const { latitude, longitude } = positionData.coords
         
-        // Default to coordinates if reverse geocoding fails
         let addressText = `Meine Position (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`
         
         try {
-          // Try to get a human-readable address
           if (window.google?.maps) {
             const geocoderInstance = new google.maps.Geocoder();
             try {
@@ -63,10 +247,8 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
               
               if (geocodeResults?.[0]) {
                 addressText = geocodeResults[0].formatted_address
-                console.log('Got readable address from coordinates:', addressText)
               }
             } catch (geoError) {
-              console.warn('Reverse geocoding didnt work:', geoError)
               // Keep using coordinate-based address
             }
           }
@@ -77,11 +259,9 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
             address: addressText
           }
           
-          console.log('Successfully detected location:', detectedLocation)
           onLocationSelect?.(detectedLocation)
           
         } catch (locationProcessingError) {
-          console.error('Error while processing location:', locationProcessingError)
           const backupLocation: Location = {
             latitude,
             longitude,
@@ -94,10 +274,8 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
         }
       },
       (geoError) => {
-        console.error('Geolocation failed:', geoError)
         let errorMessage = 'Standort konnte nicht gefunden werden.'
         
-        // Give user specific error messages based on the problem
         switch (geoError.code) {
           case geoError.PERMISSION_DENIED:
             errorMessage = 'Standortzugriff wurde blockiert. Bitte erlauben Sie den Zugriff in den Browser-Einstellungen und versuchen Sie es erneut.'
@@ -130,7 +308,7 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
           geocoderInstance.geocode(
             { 
               address: inputAddress,
-              componentRestrictions: { country: 'DE' }, // Focus on Germany
+              componentRestrictions: { country: 'DE' },
               language: 'de'
             },
             (results, status) => {
@@ -150,14 +328,11 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
             longitude: foundPosition.lng(),
             address: geocodeResults[0].formatted_address
           }
-          console.log('Address search successful:', foundLocation)
           onLocationSelect?.(foundLocation)
           return
         }
       }
 
-      // If geocoding doesn't work, use Hamburg as fallback
-      console.warn('Geocoding failed, using Hamburg fallback')
       const hamburgFallback: Location = {
         latitude: 53.5505,
         longitude: 9.9937,
@@ -166,8 +341,6 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
       onLocationSelect?.(hamburgFallback)
       
     } catch (addressSearchError) {
-      console.error('Address search error:', addressSearchError)
-      // Still provide a fallback so user can continue
       const errorFallback: Location = {
         latitude: 53.5505,
         longitude: 9.9937,
@@ -212,34 +385,84 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
       </div>
 
       <div className="space-y-8">
-        {/* Address input section */}
-        <div className="flex gap-4 relative">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-yellow-600 w-5 h-5" />
-            <input
-              type="text"
-              value={inputAddress}
-              onChange={(e) => setInputAddress(e.target.value)}
-              placeholder="Straße, Stadt, PLZ oder bekannter Ort..."
-              className="flex h-16 w-full rounded-xl border-2 border-gray-300 bg-white px-14 py-4 text-lg placeholder:text-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 text-gray-900 transition-all duration-300"
-              onKeyPress={(e) => e.key === 'Enter' && searchForAddress()}
-            />
+        {/* Address input section with predictive search */}
+        <div className="relative">
+          <div className="flex gap-4 relative">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-yellow-600 w-5 h-5" />
+              <input
+                ref={inputFieldRef}
+                type="text"
+                value={inputAddress}
+                onChange={(e) => setInputAddress(e.target.value)}
+                onFocus={handleInputFocus}
+                onKeyPress={(e) => e.key === 'Enter' && searchForAddress()}
+                placeholder="Straße, Adresse, Gebäude oder Ort eingeben..."
+                className="flex h-16 w-full rounded-xl border-2 border-gray-300 bg-white px-14 py-4 text-lg placeholder:text-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 text-gray-900 transition-all duration-300"
+                disabled={!googleMapsReady}
+              />
+              
+              {isSearching && (
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <div className="w-5 h-5 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={searchForAddress}
+              disabled={isSearching || !inputAddress.trim()}
+              className="hidden md:inline-flex items-center justify-center rounded-xl road-sign px-10 py-4 font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSearching ? (
+                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                'Suchen'
+              )}
+            </button>
           </div>
 
-          <button
-            onClick={searchForAddress}
-            disabled={isSearching || !inputAddress.trim()}
-            className="hidden md:inline-flex items-center justify-center rounded-xl road-sign px-10 py-4 font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSearching ? (
-              <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              'Suchen'
-            )}
-          </button>
+          {/* Suggestions dropdown */}
+          {dropdownVisible && suggestions.length > 0 && (
+            <div 
+              ref={suggestionListRef}
+              className="absolute top-full left-0 right-0 z-50 mt-2 bg-white border-2 border-yellow-500 rounded-xl shadow-xl overflow-hidden max-h-80 overflow-y-auto"
+            >
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={`${suggestion.place_id}-${index}`}
+                  onClick={() => selectSuggestion(suggestion)}
+                  className="w-full px-5 py-4 text-left hover:bg-yellow-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center mt-0.5">
+                      {getLocationIcon(suggestion.types)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-gray-900 text-sm font-medium truncate group-hover:text-gray-700">
+                        {suggestion.description}
+                      </div>
+                      <div className="text-gray-500 text-xs mt-1.5">
+                        <span className="bg-gray-100 group-hover:bg-yellow-100 px-2 py-1 rounded-full transition-colors">
+                          {getLocationTypeText(suggestion.types)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!googleMapsReady && (
+            <div className="text-xs text-yellow-600 mt-2 flex items-center gap-1">
+              <div className="w-3 h-3 border border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
+              Lade Google Maps Dienste...
+            </div>
+          )}
         </div>
 
-        {/* Separator */}
+        {/* Rest of the component remains the same */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300" />
