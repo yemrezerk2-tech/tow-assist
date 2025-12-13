@@ -136,7 +136,7 @@ export default function Home() {
                 <div className="absolute inset-0 rounded-xl bg-black opacity-5 group-hover:opacity-10 transition-opacity"></div>
                 <span className="relative flex items-center justify-center text-lg">
                   <MapPin className="w-6 h-6 mr-3" />
-                  JETZT HILFE ANFORDERN
+                  JETZT HILFE ANFORDERN.
                   <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </span>
               </button>
