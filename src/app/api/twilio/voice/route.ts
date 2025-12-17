@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       `
       <Response>
         <Gather
-          numDigits="6"
+          numDigits="4"
           action="https://www.getroadhelp.com/api/twilio/voice"
           method="POST"
           timeout="6"
