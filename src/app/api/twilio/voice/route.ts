@@ -8,6 +8,7 @@ export async function POST(request: Request) {
 
   // STEP 1 — Ask for Hilfe-ID
   if (!digits) {
+    
     return new NextResponse(
       `<Response>
         <Gather
@@ -50,6 +51,9 @@ export async function POST(request: Request) {
 
   // STEP 4 — Validation
   if (!assignment || error || assignment.status !== 'assigned' || !driver?.phone) {
+    console.log('HELP ID:', helpId)
+    console.log('ASSIGNMENT:', assignment)
+    console.log('ERROR:', error)
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
