@@ -64,6 +64,9 @@ export async function POST(request: Request) {
       { headers: { 'Content-Type': 'text/xml' } }
     )
   }
+  console.log('HELP ID:', helpId)
+  console.log('ASSIGNMENT:', assignment)
+  console.log('ERROR:', error)
 
   // STEP 5 — Connect call
   return new NextResponse(
