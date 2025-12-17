@@ -33,52 +33,46 @@ export async function POST(request: Request) {
 
   // STEP 3 — Lookup assignment
   const { data: assignment, error } = await supabase
-    .from('assignments')
-    .select(`
-      help_id,
-      status,
-      drivers (
-        phone,
-        name
-      )
-    `)
-    .eq('help_id', helpId)
-    .single()
-
-  const driver = assignment?.drivers
-
-  // STEP 4 — Validation
-  if (
-    error ||
-    !assignment ||
-    assignment.status !== 'assigned' ||
-    !driver?.phone
-  ) {
-    console.log('HELP ID:', helpId)
-    console.log('ASSIGNMENT:', assignment)
-    console.log('ERROR:', error)
-
-    return new NextResponse(
-      `<Response>
-        <Say language="de-DE">
-          Diese Hilfe I D ist nicht mehr aktiv.
-          Bitte wenden Sie sich an unseren Support.
-        </Say>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
+  .from('assignments')
+  .select(`
+    help_id,
+    status,
+    drivers (
+      phone,
+      name
     )
-  }
+  `)
+  .eq('help_id', helpId)
+  .single()
 
-  // STEP 5 — Connect call
+const driver = assignment?.drivers
+
+if (
+  error ||
+  !assignment ||
+  assignment.status !== 'assigned' ||
+  !driver?.phone
+) {
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
-        Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
+        Diese Hilfe I D ist nicht mehr aktiv.
+        Bitte wenden Sie sich an unseren Support.
       </Say>
-      <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
-        ${driver.phone}
-      </Dial>
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )
+}
+
+return new NextResponse(
+  `<Response>
+    <Say language="de-DE">
+      Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
+    </Say>
+    <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
+      ${driver.phone}
+    </Dial>
+  </Response>`,
+  { headers: { 'Content-Type': 'text/xml' } }
+)
 }
