@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       <Response>
         <Gather
           numDigits="6"
-          action="/api/twilio/voice"
+          action="https://www.getroadhelp.com/api/twilio/voice"
           method="POST"
           timeout="8"
         >
@@ -58,12 +58,17 @@ export async function POST(request: Request) {
   
   const driver = assignment?.drivers?.[0]
 
-  if (error || !assignment || !driver?.phone) {
+  if (
+    error ||
+    !assignment ||
+    assignment.status !== 'assigned' ||
+    !driver?.phone
+  )
     return new NextResponse(
       `
       <Response>
         <Say language="de-DE">
-          Leider konnten wir Ihre Hilfe I D nicht finden.
+          Diese Hilfe I D ist nicht mehr aktiv.
           Bitte wenden Sie sich an unseren Support.
         </Say>
       </Response>
