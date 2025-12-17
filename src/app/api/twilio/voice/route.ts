@@ -66,6 +66,10 @@ export async function POST(request: Request) {
   }
 
   // STEP 5 — Connect caller
+  console.log('HELP ID:', helpId)
+  console.log('ASSIGNMENT:', assignment)
+  console.log('ERROR:', error)
+  console.log('driver:', driver)
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
