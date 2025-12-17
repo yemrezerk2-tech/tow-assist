@@ -47,13 +47,14 @@ export async function POST(request: Request) {
     .eq('help_id', helpId)
     .single() // returns single row or null
 
-  const driver = assignment?.drivers?.[0] // get first driver
+  const driver = assignment?.drivers // get first driver
 
   // STEP 4 — Validation
   if (!assignment || error || assignment.status !== 'assigned' || !driver?.phone) {
     console.log('HELP ID:', helpId)
     console.log('ASSIGNMENT:', assignment)
     console.log('ERROR:', error)
+    console.log('driver:', driver)
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
