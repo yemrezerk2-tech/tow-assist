@@ -13,6 +13,7 @@
     "@googlemaps/react-wrapper": "^1.2.0",
     "@supabase/supabase-js": "^2.78.0",
     "better-sqlite3": "^12.4.1",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.546.0",
     "next": "^16.0.7",
     "react": "19.1.0",
