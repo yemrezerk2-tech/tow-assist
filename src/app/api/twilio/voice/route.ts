@@ -23,10 +23,10 @@ export async function POST(request: Request) {
           numDigits="6"
           action="https://www.getroadhelp.com/api/twilio/voice"
           method="POST"
-          timeout="8"
+          timeout="6"
         >
           <Say language="de-DE">
-            Willkommen bei Road Help.
+            Willkommen bei Road Assistance.
             Bitte geben Sie jetzt Ihre Hilfe I D ein.
           </Say>
         </Gather>
