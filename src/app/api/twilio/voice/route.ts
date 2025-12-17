@@ -47,13 +47,15 @@ export async function POST(request: Request) {
     .eq('help_id', helpId)
     .single()
 
-  // STEP 3 — Validation FIRST
+  // STEP 3 — Validation
+  const driver = assignment?.drivers?.[0]
+
   if (
     error ||
     !assignment ||
     assignment.status !== 'assigned' ||
-    !assignment.drivers ||
-    !assignment.drivers.phone
+    !driver ||
+    !driver.phone
   ) {
     console.log('HELP ID:', helpId)
     console.log('ASSIGNMENT:', assignment)
@@ -69,8 +71,8 @@ export async function POST(request: Request) {
     )
   }
 
-  // STEP 4 — Safe access AFTER validation
-  const driverPhone = assignment.drivers.phone
+  // STEP 4 — Safe access
+  const driverPhone = driver.phone
 
   console.log('CALLING DRIVER:', driverPhone)
 
