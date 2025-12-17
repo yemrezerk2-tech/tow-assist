@@ -74,6 +74,34 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const { id, newHelpId } = await request.json();
+
+    if (!id || !newHelpId) {
+      return NextResponse.json({ error: 'Missing id or newHelpId' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('assignments')
+      .update({ help_id: newHelpId })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, updatedAssignment: data });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
