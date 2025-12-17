@@ -64,16 +64,14 @@ export async function POST(request: Request) {
     !assignment ||
     assignment.status !== 'assigned' ||
     !driver?.phone
-  )
+  ) {
     return new NextResponse(
-      `
-      <Response>
+      `<Response>
         <Say language="de-DE">
           Diese Hilfe I D ist nicht mehr aktiv.
           Bitte wenden Sie sich an unseren Support.
         </Say>
-      </Response>
-      `,
+      </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     )
   }
