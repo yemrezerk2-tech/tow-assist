@@ -1,12 +1,34 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+/**
+ * Types
+ */
+type AssignmentWithDriver = {
+  help_id: string
+  status: string
+  drivers: {
+    name: string
+    phone: string
+  } | null
+}
+
+/**
+ * TWILIO VOICE WEBHOOK
+ * Flow:
+ * 1. Ask caller to enter Hilfe-ID
+ * 2. Lookup assignment
+ * 3. Connect to driver
+ */
 export async function POST(request: Request) {
+  // Read Twilio form data
   const formData = await request.formData()
   const rawDigits = formData.get('Digits') as string | null
   const digits = rawDigits?.replace(/\D/g, '')
 
-  // STEP 1 — Ask for Hilfe-ID
+  /**
+   * STEP 1 — Ask for Hilfe-ID
+   */
   if (!digits) {
     return new NextResponse(
       `<Response>
@@ -29,54 +51,60 @@ export async function POST(request: Request) {
     )
   }
 
+  /**
+   * STEP 2 — Hilfe-ID
+   */
   const helpId = digits
 
-  // STEP 2 — Lookup assignment
+  /**
+   * STEP 3 — Lookup assignment + driver
+   */
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select(
-      `
+    .select(`
       help_id,
       status,
       drivers (
-        phone,
-        name
+        name,
+        phone
       )
-    `
-    )
+    `)
     .eq('help_id', helpId)
-    .single()
+    .single<AssignmentWithDriver>()
 
-  // STEP 3 — Validation
-  const driver = assignment?.drivers?.[0]
+  const driverPhone = assignment?.drivers?.phone
 
+  /**
+   * DEBUG LOGS (Vercel)
+   */
+  console.log('HELP ID:', helpId)
+  console.log('ASSIGNMENT:', assignment)
+  console.log('ERROR:', error)
+  console.log('DRIVER PHONE:', driverPhone)
+
+  /**
+   * STEP 4 — Validation
+   */
   if (
     error ||
     !assignment ||
     assignment.status !== 'assigned' ||
-    !driver ||
-    !driver.phone
+    !driverPhone
   ) {
-    console.log('HELP ID:', helpId)
-    console.log('ASSIGNMENT:', assignment)
-    console.log('ERROR:', error)
-
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
           Diese Hilfe I D ist nicht mehr aktiv.
+          Bitte wenden Sie sich an unseren Support.
         </Say>
       </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     )
   }
 
-  // STEP 4 — Safe access
-  const driverPhone = driver.phone
-
-  console.log('CALLING DRIVER:', driverPhone)
-
-  // STEP 5 — Connect caller
+  /**
+   * STEP 5 — Connect caller to driver
+   */
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
