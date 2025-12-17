@@ -40,7 +40,8 @@ export async function POST(request: Request) {
   }
 
   // STEP 2 — Normalize Hilfe-ID (digits → HLPXXXX)
-  const helpId = `HLP${digits.slice(0, 4)}`
+  // const helpId = `HLP${digits.slice(0, 4)}`
+  const helpId = digits
 
   // STEP 3 — Lookup assignment
   const { data: assignment, error } = await supabase
