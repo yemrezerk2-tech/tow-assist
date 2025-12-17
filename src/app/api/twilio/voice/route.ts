@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   const driver = assignment?.drivers // get first driver
 
   // STEP 4 — Validation
-  if (!assignment || error || assignment.status !== 'assigned' || !driver?.phone) {
+  if (!assignment || error || assignment.status !== 'assigned' || !driver) {
     console.log('HELP ID:', helpId)
     console.log('ASSIGNMENT:', assignment)
     console.log('ERROR:', error)
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
       </Say>
       <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
-        ${driver.phone}
+        ${driver}
       </Dial>
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
