@@ -8,7 +8,6 @@ export async function POST(request: Request) {
 
   // STEP 1 — Ask for Hilfe-ID
   if (!digits) {
-    
     return new NextResponse(
       `<Response>
         <Gather
@@ -30,32 +29,36 @@ export async function POST(request: Request) {
     )
   }
 
-  // STEP 2 — Hilfe-ID
   const helpId = digits
 
-  // STEP 3 — Lookup assignment
+  // STEP 2 — Lookup assignment
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select(`
+    .select(
+      `
       help_id,
       status,
       drivers (
         phone,
         name
       )
-    `)
+    `
+    )
     .eq('help_id', helpId)
-    .single() // returns single row or null
+    .single()
 
-  const driver = assignment?.drivers // get first driver
-  const driverPhone = driver.phone
-
-  // STEP 4 — Validation
-  if (!assignment || error || assignment.status !== 'assigned' || !driver) {
+  // STEP 3 — Validation FIRST
+  if (
+    error ||
+    !assignment ||
+    assignment.status !== 'assigned' ||
+    !assignment.drivers ||
+    !assignment.drivers.phone
+  ) {
     console.log('HELP ID:', helpId)
     console.log('ASSIGNMENT:', assignment)
     console.log('ERROR:', error)
-    console.log('driver:', driverPhone)
+
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -66,11 +69,12 @@ export async function POST(request: Request) {
     )
   }
 
+  // STEP 4 — Safe access AFTER validation
+  const driverPhone = assignment.drivers.phone
+
+  console.log('CALLING DRIVER:', driverPhone)
+
   // STEP 5 — Connect caller
-  console.log('HELP ID:', helpId)
-  console.log('ASSIGNMENT:', assignment)
-  console.log('ERROR:', error)
-  console.log('driver:', driverPhone)
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
