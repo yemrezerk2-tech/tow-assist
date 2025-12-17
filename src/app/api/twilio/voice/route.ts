@@ -1,24 +1,14 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-/**
- * TWILIO VOICE WEBHOOK
- * Flow:
- * 1. Ask caller to enter Hilfe-ID
- * 2. Lookup assignment
- * 3. Connect to driver
- */
-
 export async function POST(request: Request) {
   const formData = await request.formData()
-
   const digits = formData.get('Digits') as string | null
 
   // STEP 1 — Ask for Hilfe-ID
   if (!digits) {
     return new NextResponse(
-      `
-      <Response>
+      `<Response>
         <Gather
           numDigits="4"
           action="https://www.getroadhelp.com/api/twilio/voice"
@@ -33,14 +23,12 @@ export async function POST(request: Request) {
         <Say language="de-DE">
           Wir haben keine Eingabe erhalten. Bitte rufen Sie erneut an.
         </Say>
-      </Response>
-      `,
+      </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     )
   }
 
-  // STEP 2 — Normalize Hilfe-ID (digits → HLPXXXX)
-  // const helpId = `HLP${digits.slice(0, 4)}`
+  // STEP 2 — Hilfe-ID
   const helpId = digits
 
   // STEP 3 — Lookup assignment
@@ -56,9 +44,10 @@ export async function POST(request: Request) {
     `)
     .eq('help_id', helpId)
     .single()
-  
+
   const driver = assignment?.drivers?.[0]
 
+  // STEP 4 — Validation
   if (
     error ||
     !assignment ||
@@ -76,20 +65,16 @@ export async function POST(request: Request) {
     )
   }
 
-  const driverPhone = driver.phone
-
-  // STEP 4 — Connect caller to driver
+  // STEP 5 — Connect call
   return new NextResponse(
-    `
-    <Response>
+    `<Response>
       <Say language="de-DE">
         Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
       </Say>
       <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
-        ${driverPhone}
+        ${driver.phone}
       </Dial>
-    </Response>
-    `,
+    </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )
 }
