@@ -29,10 +29,17 @@ export async function POST(request: Request) {
   }
 
   // STEP 2 — Hilfe-ID
-  const helpId = digits
+  const formData = await request.formData()
+const rawDigits = formData.get('Digits') as string | null
+const digits = rawDigits?.replace(/\D/g, '')
 
-  // STEP 3 — Lookup assignment
-  const { data: assignment, error } = await supabase
+if (!digits) {
+  // Gather again
+}
+
+const helpId = digits
+
+const { data, error } = await supabase
   .from('assignments')
   .select(`
     help_id,
@@ -43,8 +50,9 @@ export async function POST(request: Request) {
     )
   `)
   .eq('help_id', helpId)
-  .single()
+  .limit(1)
 
+const assignment = data?.[0]
 const driver = assignment?.drivers
 
 if (
@@ -53,14 +61,10 @@ if (
   assignment.status !== 'assigned' ||
   !driver?.phone
 ) {
-  console.log('HELP ID:', helpId)
-    console.log('ASSIGNMENT:', assignment)
-    console.log('ERROR:', error)
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
         Diese Hilfe I D ist nicht mehr aktiv.
-        Bitte wenden Sie sich an unseren Support.
       </Say>
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
