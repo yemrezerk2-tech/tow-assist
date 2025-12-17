@@ -48,13 +48,14 @@ export async function POST(request: Request) {
     .single() // returns single row or null
 
   const driver = assignment?.drivers // get first driver
+  const driverPhone = driver.phone
 
   // STEP 4 — Validation
   if (!assignment || error || assignment.status !== 'assigned' || !driver) {
     console.log('HELP ID:', helpId)
     console.log('ASSIGNMENT:', assignment)
     console.log('ERROR:', error)
-    console.log('driver:', driver)
+    console.log('driver:', driverPhone)
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -69,14 +70,14 @@ export async function POST(request: Request) {
   console.log('HELP ID:', helpId)
   console.log('ASSIGNMENT:', assignment)
   console.log('ERROR:', error)
-  console.log('driver:', driver)
+  console.log('driver:', driverPhone)
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
         Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
       </Say>
       <Dial callerId="${process.env.TWILIO_PHONE_NUMBER}">
-        ${driver}
+        ${driverPhone}
       </Dial>
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
