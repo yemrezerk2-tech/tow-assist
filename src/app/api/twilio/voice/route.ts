@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   if (
     error ||
     !assignment ||
-    assignment.status !== 'pending' ||
+    assignment.status !== 'assigned' ||
     !driver?.phone
   ) {
     return new NextResponse(
