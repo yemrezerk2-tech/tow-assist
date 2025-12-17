@@ -53,6 +53,9 @@ if (
   assignment.status !== 'assigned' ||
   !driver?.phone
 ) {
+  console.log('HELP ID:', helpId)
+    console.log('ASSIGNMENT:', assignment)
+    console.log('ERROR:', error)
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
