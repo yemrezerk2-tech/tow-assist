@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     .eq('help_id', helpId)
     .single()
 
-  const driver = assignment?.drivers?.[0]
+  const driver = assignment?.drivers
 
   // STEP 4 — Validation
   if (
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     console.log('HELP ID:', helpId)
     console.log('ASSIGNMENT:', assignment)
     console.log('ERROR:', error)
-    
+
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
