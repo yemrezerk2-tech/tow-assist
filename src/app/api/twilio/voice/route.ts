@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   /**
    * 🚫 Max attempts reached → say + hang up
    */
-  if (attempt > 3) {
+  if (attempt > 4) {
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
