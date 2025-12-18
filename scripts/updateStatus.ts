@@ -12,19 +12,18 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-async function run() {
-  const { data, error } = await supabase
-    .from('assignments')
-    .update({ status: 'assigned' })
-    .eq('help_id', 'HLPR6PR-87')
-    .select()
+async function updatePhone() {
+  const { error } = await supabase
+    .from('drivers')
+    .update({ phone: '+4915774585622' })
+    .eq('name', 'Alex')
 
   if (error) {
-    console.error('❌ Update failed:', error)
-    process.exit(1)
+    console.error('Update failed:', error)
+  } else {
+    console.log('✅ Driver phone updated successfully')
   }
-
-  console.log('✅ Updated assignment:', data)
 }
 
-run()
+
+updatePhone()
