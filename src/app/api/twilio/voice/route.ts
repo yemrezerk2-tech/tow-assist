@@ -19,9 +19,9 @@ export async function POST(request: Request) {
   const digits = rawDigits?.replace(/\D/g, '')
 
   /**
-   * 🚫 Max attempts reached → say + hang up
+   * 🚫 MAX ATTEMPTS (3)
    */
-  if (attempt > 4) {
+  if (attempt > 3) {
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -35,35 +35,32 @@ export async function POST(request: Request) {
   }
 
   /**
-   * 🔁 Ask for Hilfe-ID (first time or retry)
+   * 🔁 ASK FOR HELP ID
    */
   if (!digits) {
     return new NextResponse(
       `<Response>
         <Gather
           numDigits="4"
+          timeout="6"
           action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
           method="POST"
-          timeout="6"
         >
           <Say language="de-DE">
             ${
               attempt === 1
                 ? 'Willkommen bei Road Assistance. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : 'Die Eingabe war ungültig. Bitte geben Sie Ihre Hilfe I D erneut ein.'
+                : 'Die Hilfe I D war ungültig. Bitte versuchen Sie es erneut.'
             }
           </Say>
         </Gather>
-        <Say language="de-DE">
-          Wir haben keine Eingabe erhalten.
-        </Say>
       </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     )
   }
 
   /**
-   * 🔍 Lookup assignment + driver
+   * 🔍 LOOKUP ASSIGNMENT
    */
   const { data: assignment, error } = await supabase
     .from('assignments')
@@ -83,11 +80,9 @@ export async function POST(request: Request) {
   console.log('HELP ID:', digits)
   console.log('ATTEMPT:', attempt)
   console.log('ASSIGNMENT:', assignment)
-  console.log('ERROR:', error)
-  console.log('DRIVER PHONE:', driverPhone)
 
   /**
-   * ❌ Invalid Help-ID → retry (counts as attempt)
+   * ❌ INVALID HELP ID → retry ONCE
    */
   if (
     error ||
@@ -97,6 +92,9 @@ export async function POST(request: Request) {
   ) {
     return new NextResponse(
       `<Response>
+        <Say language="de-DE">
+          Diese Hilfe I D ist nicht gültig.
+        </Say>
         <Redirect method="POST">
           https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}
         </Redirect>
@@ -106,7 +104,7 @@ export async function POST(request: Request) {
   }
 
   /**
-   * ✅ Success → connect caller
+   * ✅ CONNECT DRIVER
    */
   return new NextResponse(
     `<Response>
