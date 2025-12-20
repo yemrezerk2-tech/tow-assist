@@ -80,17 +80,10 @@ export async function POST(request: Request) {
 
   const driverPhone = assignment?.drivers?.phone
 
-
-
-
-
   /**
    * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
    */
-  if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
-
-
-
+  if (!assignment || assignment.status !== 'pending' || !driverPhone) {
     return new NextResponse(
       `<Response>
         <Gather
