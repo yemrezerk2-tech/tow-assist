@@ -157,23 +157,37 @@ export async function POST(request: Request) {
    * ✅ CONNECT DRIVER
    */
   console.log('Connecting caller to driver...')
-  return new NextResponse(
-    `<Response>
-      <Say language="de-DE">
-        Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
-      </Say>
+console.log('Recording enabled:', shouldRecord)
 
-      <Dial
-        callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(
-          driverPhone
-        )}"
-        method="POST"
-        ${shouldRecord ? 'record="record-from-answer"' : ''}
-      >
-        <Number>${driverPhone}</Number>
-      </Dial>
-    </Response>`,
-    { headers: { 'Content-Type': 'text/xml' } }
-  )
+const dialXml = shouldRecord
+  ? `
+    <Dial
+      callerId="${process.env.TWILIO_PHONE_NUMBER}"
+      record="record-from-answer"
+      action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
+      method="POST"
+    >
+      <Number>${driverPhone}</Number>
+    </Dial>
+  `
+  : `
+    <Dial
+      callerId="${process.env.TWILIO_PHONE_NUMBER}"
+      action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
+      method="POST"
+    >
+      <Number>${driverPhone}</Number>
+    </Dial>
+  `
+
+return new NextResponse(
+  `<Response>
+    <Say language="de-DE">
+      Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
+    </Say>
+    ${dialXml}
+  </Response>`,
+  { headers: { 'Content-Type': 'text/xml' } }
+)
+
 }
