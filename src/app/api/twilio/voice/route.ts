@@ -91,8 +91,6 @@ export async function POST(request: Request) {
 
 
 
-
-
     return new NextResponse(
       `<Response>
         <Gather
