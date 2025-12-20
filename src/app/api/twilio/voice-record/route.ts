@@ -1,44 +1,41 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://www.getroadhelp.com';
+const AFTER_DIAL_URL = `${BASE_URL}/api/twilio/after-dial`;
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData()
-    const digits = formData.get('Digits') as string | null
+    const formData = await request.formData();
+    const digits = formData.get('Digits') as string | null;
 
-    // Twilio absolute URL for the next action
-    const afterDialUrl = 'https://www.getroadhelp.com/api/twilio/after-dial'
-
-    // If first time, or no input yet, ask for 1/2
+    // No input → prompt
     if (!digits) {
       return new NextResponse(
         `<Response>
-          <Gather numDigits="1" timeout="10" action="https://www.getroadhelp.com/api/twilio/voice-record" method="POST">
+          <Gather numDigits="1" timeout="10" action="${BASE_URL}/api/twilio/voice-record" method="POST">
             <Say language="de-DE">
-              Drücken Sie 1, um Ihre Nachricht aufzuzeichnen. Drücken Sie 2, um die Aufzeichnung abzulehnen. 
-              Wenn keine Eingabe erfolgt, wird die Aufzeichnung automatisch gestartet.
+              Drücken Sie 1, um Ihre Nachricht aufzuzeichnen. Drücken Sie 2, um die Aufzeichnung abzulehnen.
+              Nach 10 Sekunden startet die Aufzeichnung automatisch.
             </Say>
           </Gather>
-          
-          <!-- Auto-record after 10s if no input -->
           <Say language="de-DE">Aufzeichnung wird gestartet...</Say>
-          <Record maxLength="120" action="${afterDialUrl}" method="POST" />
+          <Record maxLength="120" action="${AFTER_DIAL_URL}" method="POST"/>
         </Response>`,
         { headers: { 'Content-Type': 'text/xml' } }
-      )
+      );
     }
 
-    // If user pressed 1 → start recording
+    // Digit input
     if (digits === '1') {
       return new NextResponse(
         `<Response>
           <Say language="de-DE">Aufzeichnung wird gestartet.</Say>
-          <Record maxLength="120" action="${afterDialUrl}" method="POST" />
+          <Record maxLength="120" action="${AFTER_DIAL_URL}" method="POST"/>
         </Response>`,
         { headers: { 'Content-Type': 'text/xml' } }
-      )
+      );
     }
 
-    // If user pressed 2 → cancel recording
     if (digits === '2') {
       return new NextResponse(
         `<Response>
@@ -46,20 +43,19 @@ export async function POST(request: Request) {
           <Hangup/>
         </Response>`,
         { headers: { 'Content-Type': 'text/xml' } }
-      )
+      );
     }
 
-    // If user pressed something else → repeat prompt
+    // Invalid input → retry
     return new NextResponse(
       `<Response>
         <Say language="de-DE">Ungültige Eingabe.</Say>
-        <Redirect method="POST">https://www.getroadhelp.com/api/twilio/voice-record</Redirect>
+        <Redirect method="POST">${BASE_URL}/api/twilio/voice-record</Redirect>
       </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
-    )
-
+    );
   } catch (err) {
-    console.error('voice-record route error:', err)
+    console.error('voice-record route error:', err);
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -68,6 +64,6 @@ export async function POST(request: Request) {
         <Hangup/>
       </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
-    )
+    );
   }
 }
