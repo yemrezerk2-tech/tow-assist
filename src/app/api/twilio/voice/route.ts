@@ -125,7 +125,6 @@ export async function POST(request: Request) {
         Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
       </Say>
       <Dial
-        // callerId="${process.env.TWILIO_PHONE_NUMBER}"
         action="https://www.getroadhelp.com/api/twilio/after-dial"
         method="POST"
       >
