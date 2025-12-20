@@ -124,11 +124,13 @@ export async function POST(request: Request) {
       <Say language="de-DE">
         Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
       </Say>
+  
       <Dial
+        callerId="${process.env.TWILIO_PHONE_NUMBER}"
         action="https://www.getroadhelp.com/api/twilio/after-dial"
         method="POST"
       >
-        ${driverPhone}
+        <Number>${driverPhone}</Number>
       </Dial>
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
