@@ -12,7 +12,9 @@ type AssignmentWithDriver = {
 
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
+
   const attempt = Number(searchParams.get('attempt') ?? '1')
+  const recordDecision = searchParams.get('record') // "yes" | "no" | null
 
   const formData = await request.formData()
   const rawDigits = formData.get('Digits') as string | null
@@ -22,6 +24,7 @@ export async function POST(request: Request) {
   console.log('Attempt:', attempt)
   console.log('Raw Digits:', rawDigits)
   console.log('Processed Digits:', digits)
+  console.log('Record decision:', recordDecision)
 
   /**
    * 🚫 MAX ATTEMPTS = 3
@@ -43,8 +46,8 @@ export async function POST(request: Request) {
   /**
    * 🔁 ASK FOR HELP ID
    */
-  if (!digits) {
-    console.log('No digits entered. Asking again.')
+  if (!digits && !recordDecision) {
+    console.log('No digits entered. Asking for Help ID.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -69,7 +72,7 @@ export async function POST(request: Request) {
   }
 
   /**
-   * 🔍 LOOKUP ASSIGNMENT
+   * 🔍 LOOKUP ASSIGNMENT (only once, after Help ID)
    */
   const { data: assignment, error } = await supabase
     .from('assignments')
@@ -94,10 +97,10 @@ export async function POST(request: Request) {
   console.log('Driver Phone:', driverPhone)
 
   /**
-   * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
+   * ❌ INVALID HELP ID
    */
   if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
-    console.log('Invalid help ID or driver not available. Re-asking.')
+    console.log('Invalid help ID or driver not available.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -116,6 +119,41 @@ export async function POST(request: Request) {
   }
 
   /**
+   * 🎙️ ASK FOR RECORDING DECISION
+   */
+  if (!recordDecision) {
+    console.log('Asking caller for recording permission.')
+    return new NextResponse(
+      `<Response>
+        <Gather
+          numDigits="1"
+          timeout="10"
+          method="POST"
+          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt}&record=pending&helpId=${digits}"
+        >
+          <Say language="de-DE">
+            Dieser Anruf kann zu Qualitätszwecken aufgezeichnet werden.
+            Drücken Sie die Eins, um der Aufzeichnung zuzustimmen.
+          </Say>
+        </Gather>
+
+        <!-- Timeout → no recording -->
+        <Redirect method="POST">
+          https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt}&record=no&helpId=${digits}
+        </Redirect>
+      </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
+  }
+
+  /**
+   * 🎧 HANDLE RECORDING DECISION
+   */
+  const shouldRecord = rawDigits === '1' || recordDecision === 'yes'
+
+  console.log('Recording enabled:', shouldRecord)
+
+  /**
    * ✅ CONNECT DRIVER
    */
   console.log('Connecting caller to driver...')
@@ -124,15 +162,17 @@ export async function POST(request: Request) {
       <Say language="de-DE">
         Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
       </Say>
-  
+
       <Dial
         callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
+        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(
+          driverPhone
+        )}"
         method="POST"
+        ${shouldRecord ? 'record="record-from-answer"' : ''}
       >
         <Number>${driverPhone}</Number>
       </Dial>
-
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )

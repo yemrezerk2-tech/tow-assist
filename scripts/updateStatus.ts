@@ -15,8 +15,8 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 async function updatePhone() {
   const { error } = await supabase
     .from('drivers')
-    .update({ phone: '+491782315161' })
-    .eq('name', 'Thomas')
+    .update({ phone: '+4915774585622' })
+    .in('name', ['Alex', 'Thomas'])
 
   if (error) {
     console.error('Update failed:', error)
