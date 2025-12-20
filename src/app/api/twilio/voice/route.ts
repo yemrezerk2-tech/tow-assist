@@ -83,7 +83,7 @@ export async function POST(request: Request) {
   /**
    * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
    */
-  if (!assignment || assignment.status !== 'pending' || !driverPhone) {
+  if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
     return new NextResponse(
       `<Response>
         <Gather
