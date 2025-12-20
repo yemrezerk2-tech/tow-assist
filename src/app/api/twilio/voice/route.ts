@@ -15,61 +15,53 @@ export async function POST(request: Request) {
   const attempt = Number(searchParams.get('attempt') ?? '1')
 
   const formData = await request.formData()
-  const rawDigits = formData.get('Digits') as string | null
-  const digits = rawDigits?.replace(/\D/g, '')
+  const digitsRaw = formData.get('Digits') as string | null
+  const digits = digitsRaw?.replace(/\D/g, '')
 
-  /**
-   * 🚫 MAX ATTEMPTS = 3
-   */
+  /* 🚫 Max attempts */
   if (attempt > 3) {
-    return new NextResponse(
-      `<Response>
+    return xml(`
+      <Response>
         <Say language="de-DE">
           Sie haben die maximale Anzahl von Versuchen erreicht.
           Bitte wenden Sie sich an unseren Support.
         </Say>
         <Hangup/>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
+      </Response>
+    `)
   }
 
-  /**
-   * 🔁 ASK FOR HELP ID
-   */
+  /* 🔁 Ask for Help-ID */
   if (!digits) {
-    return new NextResponse(
-      `<Response>
+    return xml(`
+      <Response>
         <Gather
           numDigits="4"
           timeout="6"
+          action="/api/twilio/voice?attempt=${attempt + 1}"
           method="POST"
-          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
         >
           <Say language="de-DE">
-            ${
-              attempt === 1
-                ? 'Willkommen bei Road Assistance. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : attempt === 3
-                ? 'Letzter Versuch. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : 'Die Eingabe war ungültig. Bitte versuchen Sie es erneut.'
-            }
+            ${attempt === 1
+              ? 'Bitte geben Sie jetzt Ihre Hilfe I D ein.'
+              : 'Ungültige Eingabe. Bitte geben Sie Ihre Hilfe I D erneut ein.'}
           </Say>
         </Gather>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
+        <Say language="de-DE">
+          Keine Eingabe erhalten.
+        </Say>
+      </Response>
+    `)
   }
 
-  /**
-   * 🔍 LOOKUP ASSIGNMENT
-   */
+  /* 🔍 Lookup assignment */
   const { data: assignment } = await supabase
     .from('assignments')
     .select(`
       help_id,
       status,
       drivers (
+        name,
         phone
       )
     `)
@@ -78,43 +70,42 @@ export async function POST(request: Request) {
 
   const driverPhone = assignment?.drivers?.phone
 
-  /**
-   * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
-   */
   if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
-    return new NextResponse(
-      `<Response>
-        <Gather
-          numDigits="4"
-          timeout="6"
-          method="POST"
-          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
-        >
-          <Say language="de-DE">
-            Die Hilfe I D ist nicht gültig. Bitte versuchen Sie es erneut.
-          </Say>
-        </Gather>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
+    return xml(`
+      <Response>
+        <Redirect method="POST">
+          /api/twilio/voice?attempt=${attempt + 1}
+        </Redirect>
+      </Response>
+    `)
   }
 
-  /**
-   * ✅ CONNECT DRIVER
-   */
-  return new NextResponse(
-    `<Response>
-      <Say language="de-DE">
-        Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
-      </Say>
-      <Dial
-        callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        action="https://www.getroadhelp.com/api/twilio/after-dial"
+  /* 🎙 Ask for recording choice */
+  return xml(`
+    <Response>
+      <Gather
+        numDigits="1"
+        timeout="10"
+        action="/api/twilio/voice-record?phone=${driverPhone}"
         method="POST"
       >
-        ${driverPhone}
-      </Dial>
-    </Response>`,
-    { headers: { 'Content-Type': 'text/xml' } }
-  )
+        <Say language="de-DE">
+          Möchten Sie eine Nachricht aufnehmen?
+          Drücken Sie 1 für Ja oder 2 für Nein.
+        </Say>
+      </Gather>
+
+      <!-- ⏱ Timeout → auto record -->
+      <Redirect method="POST">
+        /api/twilio/voice-record?phone=${driverPhone}&auto=1
+      </Redirect>
+    </Response>
+  `)
+}
+
+/* Helper */
+function xml(body: string) {
+  return new NextResponse(body, {
+    headers: { 'Content-Type': 'text/xml' }
+  })
 }
