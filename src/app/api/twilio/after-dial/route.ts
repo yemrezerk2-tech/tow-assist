@@ -5,14 +5,22 @@ export async function POST(request: Request) {
 
   const dialStatus = formData.get('DialCallStatus') as string | null
   const dialDuration = formData.get('DialCallDuration')
+  const dialCallSid = formData.get('DialCallSid')
+  const caller = formData.get('From')
+  const called = formData.get('To')
 
-  console.log('📞 Dial Status:', dialStatus)
-  console.log('⏱ Duration:', dialDuration)
+  console.log('--- AFTER DIAL WEBHOOK ---')
+  console.log('Dial Status:', dialStatus)
+  console.log('Dial Duration:', dialDuration)
+  console.log('Dial CallSid:', dialCallSid)
+  console.log('Caller:', caller)
+  console.log('Called (Driver):', called)
 
   /**
    * Speak to caller based on outcome
    */
   if (dialStatus === 'busy') {
+    console.log('Driver is busy')
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -25,6 +33,7 @@ export async function POST(request: Request) {
   }
 
   if (dialStatus === 'no-answer') {
+    console.log('Driver did not answer')
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -37,6 +46,7 @@ export async function POST(request: Request) {
   }
 
   if (dialStatus === 'failed') {
+    console.log('Driver not reachable')
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -48,6 +58,7 @@ export async function POST(request: Request) {
     )
   }
 
+  console.log('Call connected successfully')
   // Successful call
   return new NextResponse(
     `<Response>
