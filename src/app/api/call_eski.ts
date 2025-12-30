@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server'
-import twilio from 'twilio'
-
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-)
 
 export async function POST(request: Request) {
   const formData = await request.formData()
 
-  const callSid = formData.get('CallSid')?.toString()
-  const callStatus = formData.get('CallStatus')?.toString()
-  const to = formData.get('To')?.toString()     // Driver
-  const from = formData.get('From')?.toString() // Caller
+  const callSid = formData.get('CallSid')
+  const callStatus = formData.get('CallStatus')
+  const to = formData.get('To')
+  const from = formData.get('From')
 
   console.log('📞 CALL STATUS CALLBACK')
   console.log('CallSid:', callSid)
@@ -26,21 +20,6 @@ export async function POST(request: Request) {
   switch (callStatus) {
     case 'completed':
       console.log('✅ Call completed successfully')
-
-      if (to) {
-        await client.messages.create({
-          from: process.env.TWILIO_WHATSAPP_FROM!,
-          to: `whatsapp:${to}`,
-          body: `Did you get the assignment?
-
-Reply:
-1️⃣ YES
-2️⃣ NO`,
-        })
-
-        console.log('📩 WhatsApp message sent to driver')
-      }
-
       break
 
     case 'busy':
