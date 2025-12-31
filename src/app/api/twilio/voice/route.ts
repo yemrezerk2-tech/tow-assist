@@ -7,7 +7,7 @@ type AssignmentWithDriver = {
   drivers: {
     name: string
     phone: string
-  } | null
+  }[] | null
 }
 
 export async function POST(request: Request) {
@@ -57,30 +57,36 @@ export async function POST(request: Request) {
       )
     }
 
-    /** 🔍 LOOKUP ASSIGNMENT */
+    /** 🔍 LOOK UP ASSIGNMENT */
     const { data, error } = await supabase
       .from('assignments')
-      .select(`
+      .select(
+        `
         help_id,
         status,
         drivers (
           name,
           phone
         )
-      `)
+      `
+      )
       .eq('help_id', digits)
       .limit(1)
 
-    const assignment = data?.[0]
+      const assignment = data?.[0] as AssignmentWithDriver | undefined
 
-    console.log('Supabase assignment:', assignment)
-    console.log('Supabase error:', error)
-
-    const driverPhone = assignment?.drivers?.phone
-    const driverName = assignment?.drivers?.name
-
-    console.log('Driver Name:', driverName)
-    console.log('Driver Phone:', driverPhone)
+      console.log('Supabase assignment:', assignment)
+      console.log('Supabase error:', error)
+      
+      const driver = Array.isArray(assignment?.drivers)
+        ? assignment.drivers[0]
+        : assignment?.drivers
+      
+      const driverPhone = driver?.phone
+      const driverName = driver?.name
+      
+      console.log('Driver Name:', driverName)
+      console.log('Driver Phone:', driverPhone)
 
     const validStatuses = ['pending']
 
@@ -108,7 +114,7 @@ export async function POST(request: Request) {
       )
     }
 
-    /** ✅ VALID HELP ID (THIS WAS MISSING) */
+    /** ✅ VALID HELP ID */
     console.log('Help ID valid. Redirecting to driver.')
 
     return new NextResponse(
