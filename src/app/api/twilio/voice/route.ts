@@ -11,128 +11,125 @@ type AssignmentWithDriver = {
 }
 
 export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const attempt = Number(searchParams.get('attempt') ?? '1')
+  try {
+    const { searchParams } = new URL(request.url)
+    const attempt = Number(searchParams.get('attempt') ?? '1')
 
-  const formData = await request.formData()
-  const rawDigits = formData.get('Digits') as string | null
-  const digits = rawDigits?.replace(/\D/g, '')
+    const formData = await request.formData()
+    const rawDigits = formData.get('Digits') as string | null
+    const digits = rawDigits?.replace(/\D/g, '')
 
-  console.log('--- TWILIO VOICE ROUTE ---')
-  console.log('Attempt:', attempt)
-  console.log('Raw Digits:', rawDigits)
-  console.log('Processed Digits:', digits)
+    console.log('--- TWILIO VOICE ROUTE ---')
+    console.log('Attempt:', attempt)
+    console.log('Raw Digits:', rawDigits)
+    console.log('Processed Digits:', digits)
+    console.log('Digits length:', digits?.length)
 
-  /**
-   * 🚫 MAX ATTEMPTS = 3
-   */
-  if (attempt > 3) {
-    console.log('Max attempts reached. Hanging up.')
+    /** 🚫 MAX ATTEMPTS */
+    if (attempt > 3) {
+      return new NextResponse(
+        `<Response>
+          <Say language="de-DE">
+            Sie haben die maximale Anzahl von Versuchen erreicht.
+          </Say>
+          <Hangup/>
+        </Response>`,
+        { headers: { 'Content-Type': 'text/xml' } }
+      )
+    }
+
+    /** 🔁 ASK FOR HELP ID */
+    if (!digits) {
+      return new NextResponse(
+        `<Response>
+          <Gather
+            numDigits="4"
+            timeout="6"
+            method="POST"
+            action="/api/twilio/voice?attempt=${attempt + 1}"
+          >
+            <Say language="de-DE">
+              Bitte geben Sie jetzt Ihre Hilfe I D ein.
+            </Say>
+          </Gather>
+        </Response>`,
+        { headers: { 'Content-Type': 'text/xml' } }
+      )
+    }
+
+    /** 🔍 LOOKUP ASSIGNMENT */
+    const { data, error } = await supabase
+      .from('assignments')
+      .select(`
+        help_id,
+        status,
+        drivers (
+          name,
+          phone
+        )
+      `)
+      .eq('help_id', digits)
+      .limit(1)
+
+    const assignment = data?.[0]
+
+    console.log('Supabase assignment:', assignment)
+    console.log('Supabase error:', error)
+
+    const driverPhone = assignment?.drivers?.phone
+    const driverName = assignment?.drivers?.name
+
+    console.log('Driver Name:', driverName)
+    console.log('Driver Phone:', driverPhone)
+
+    const validStatuses = ['pending']
+
+    /** ❌ INVALID HELP ID */
+    if (
+      error ||
+      !assignment ||
+      !validStatuses.includes(assignment.status) ||
+      !driverPhone
+    ) {
+      return new NextResponse(
+        `<Response>
+          <Gather
+            numDigits="4"
+            timeout="6"
+            method="POST"
+            action="/api/twilio/voice?attempt=${attempt + 1}"
+          >
+            <Say language="de-DE">
+              Die Hilfe I D ist nicht gültig. Bitte versuchen Sie es erneut.
+            </Say>
+          </Gather>
+        </Response>`,
+        { headers: { 'Content-Type': 'text/xml' } }
+      )
+    }
+
+    /** ✅ VALID HELP ID (THIS WAS MISSING) */
+    console.log('Help ID valid. Redirecting to driver.')
+
+    return new NextResponse(
+      `<Response>
+        <Redirect method="POST">
+          /api/twilio/connect-driver?driver=${encodeURIComponent(driverPhone)}
+        </Redirect>
+      </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
+  } catch (err) {
+    console.error('🔥 TWILIO VOICE ERROR:', err)
+
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
-          Sie haben die maximale Anzahl von Versuchen erreicht.
-          Bitte wenden Sie sich an unseren Support.
+          Ein technischer Fehler ist aufgetreten.
         </Say>
         <Hangup/>
       </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     )
   }
-
-  /**
-   * 🔁 ASK FOR HELP ID
-   */
-  if (!digits) {
-    console.log('No digits entered. Asking for Help ID.')
-    return new NextResponse(
-      `<Response>
-        <Gather
-          numDigits="4"
-          timeout="6"
-          method="POST"
-          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
-        >
-          <Say language="de-DE">
-            ${
-              attempt === 1
-                ? 'Willkommen bei Road Assistance. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : attempt === 3
-                ? 'Letzter Versuch. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : 'Die Eingabe war ungültig. Bitte versuchen Sie es erneut.'
-            }
-          </Say>
-        </Gather>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
-  }
-
-  /**
-   * 🔍 LOOKUP ASSIGNMENT
-   */
-  const { data: assignment, error } = await supabase
-    .from('assignments')
-    .select(`
-      help_id,
-      status,
-      drivers (
-        name,
-        phone
-      )
-    `)
-    .eq('help_id', digits)
-    .single<AssignmentWithDriver>()
-
-  console.log('Supabase assignment:', assignment)
-  console.log('Supabase error:', error)
-
-  const driverPhone = assignment?.drivers?.phone
-  const driverName = assignment?.drivers?.name
-
-  console.log('Driver Name:', driverName)
-  console.log('Driver Phone:', driverPhone)
-
-  /**
-   * ❌ INVALID HELP ID → retry
-   */
-  if (
-    error ||
-    !assignment ||
-    assignment.status !== 'assigned' ||
-    !driverPhone
-  ) {
-    console.log('Invalid Help ID. Asking again.')
-    return new NextResponse(
-      `<Response>
-        <Gather
-          numDigits="4"
-          timeout="6"
-          method="POST"
-          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
-        >
-          <Say language="de-DE">
-            Die Hilfe I D ist nicht gültig. Bitte versuchen Sie es erneut.
-          </Say>
-        </Gather>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
-  }
-
-  /**
-   * ✅ VALID HELP ID → redirect to recording consent
-   */
-  console.log('Help ID valid. Redirecting to recording consent.')
-
-  return new NextResponse(
-    `<Response>
-      <Redirect method="POST">
-        https://www.getroadhelp.com/api/twilio/connect-driver?driver=${encodeURIComponent(
-          driverPhone
-        )}
-      </Redirect>
-    </Response>`,
-    { headers: { 'Content-Type': 'text/xml' } }
-  )
 }
