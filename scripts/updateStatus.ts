@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-dotenv.config({ path: '.env.local' }) // 👈 IMPORTANT
+dotenv.config({ path: '.env.local' })
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -12,18 +12,19 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-async function updatePhone() {
-  const { error } = await supabase
+async function updateAssignmentHelpId() {
+  const { data, error } = await supabase
     .from('drivers')
-    .update({ phone: '+491703814443' })
-    .in('name', ['Alex', 'Thomas'])
+    .update({ phone: '+491782315161' })      // ✅ correct column
+    .eq('id', 'DRV1763900340151')     // ✅ target assignment
+    .select()
+    .single()
 
   if (error) {
-    console.error('Update failed:', error)
+    console.error('❌ Update failed:', error)
   } else {
-    console.log('✅ Driver phone updated successfully')
+    console.log('✅ Assignment updated:', data)
   }
 }
 
-
-updatePhone()
+updateAssignmentHelpId()
