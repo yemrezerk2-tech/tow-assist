@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-type Assignment = {
+type AssignmentWithDriver = {
   help_id: string
   status: string
   drivers: {
-    phone: string
     name: string
+    phone: string
   } | null
 }
 
@@ -23,8 +23,11 @@ export async function POST(request: Request) {
   console.log('Raw Digits:', rawDigits)
   console.log('Processed Digits:', digits)
 
-  /** 🚫 MAX ATTEMPTS */
+  /**
+   * 🚫 MAX ATTEMPTS = 3
+   */
   if (attempt > 3) {
+    console.log('Max attempts reached. Hanging up.')
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -37,8 +40,11 @@ export async function POST(request: Request) {
     )
   }
 
-  /** 🔁 ASK FOR HELP ID */
+  /**
+   * 🔁 ASK FOR HELP ID
+   */
   if (!digits) {
+    console.log('No digits entered. Asking again.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -48,7 +54,13 @@ export async function POST(request: Request) {
           action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
         >
           <Say language="de-DE">
-            Bitte geben Sie jetzt Ihre Hilfe I D ein.
+            ${
+              attempt === 1
+                ? 'Willkommen bei Road Assistance. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
+                : attempt === 3
+                ? 'Letzter Versuch. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
+                : 'Die Eingabe war ungültig. Bitte versuchen Sie es erneut.'
+            }
           </Say>
         </Gather>
       </Response>`,
@@ -56,32 +68,36 @@ export async function POST(request: Request) {
     )
   }
 
-  /** 🔍 LOOKUP ASSIGNMENT */
+  /**
+   * 🔍 LOOKUP ASSIGNMENT
+   */
   const { data: assignment, error } = await supabase
     .from('assignments')
     .select(`
       help_id,
       status,
       drivers (
-        phone,
-        name
+        name,
+        phone
       )
     `)
     .eq('help_id', digits)
-    .single<Assignment>()
+    .single<AssignmentWithDriver>()
 
-  console.log('Assignment:', assignment)
-  console.log('Error:', error)
+  console.log('Supabase assignment data:', assignment)
+  console.log('Supabase error:', error)
 
   const driverPhone = assignment?.drivers?.phone
+  const driverName = assignment?.drivers?.name
 
-  /** ❌ REJECT ONLY INVALID CASES */
-  if (
-    error ||
-    !assignment ||
-    assignment.status === 'assigned' || // ✅ FIXED
-    !driverPhone
-  ) {
+  console.log('Driver Name:', driverName)
+  console.log('Driver Phone:', driverPhone)
+
+  /**
+   * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
+   */
+  if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
+    console.log('Invalid help ID or driver not available. Re-asking.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -91,7 +107,7 @@ export async function POST(request: Request) {
           action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
         >
           <Say language="de-DE">
-            Die Hilfe I D ist nicht gültig oder bereits vergeben.
+            Die Hilfe I D ist nicht gültig. Bitte versuchen Sie es erneut.
           </Say>
         </Gather>
       </Response>`,
@@ -99,14 +115,24 @@ export async function POST(request: Request) {
     )
   }
 
-  /** ✅ PENDING → CONNECT DRIVER */
+  /**
+   * ✅ CONNECT DRIVER
+   */
+  console.log('Connecting caller to driver...')
   return new NextResponse(
     `<Response>
-      <Redirect method="POST">
-        https://www.getroadhelp.com/api/twilio/connect-driver?driver=${encodeURIComponent(
-          driverPhone
-        )}
-      </Redirect>
+      <Say language="de-DE">
+        Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
+      </Say>
+  
+      <Dial
+        callerId="${process.env.TWILIO_PHONE_NUMBER}"
+        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
+        method="POST"
+      >
+        <Number>${driverPhone}</Number>
+      </Dial>
+
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )
