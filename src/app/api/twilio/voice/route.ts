@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-type AssignmentWithDriver = {
+type Assignment = {
   help_id: string
   status: string
-  drivers: {
-    name: string
-    phone: string
-  } | null
+  driver_phone: string | null
+  driver_name: string | null
 }
 
 export async function POST(request: Request) {
@@ -27,7 +25,6 @@ export async function POST(request: Request) {
    * 🚫 MAX ATTEMPTS = 3
    */
   if (attempt > 3) {
-    console.log('Max attempts reached. Hanging up.')
     return new NextResponse(
       `<Response>
         <Say language="de-DE">
@@ -44,7 +41,6 @@ export async function POST(request: Request) {
    * 🔁 ASK FOR HELP ID
    */
   if (!digits) {
-    console.log('No digits entered. Asking for Help ID.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -69,40 +65,31 @@ export async function POST(request: Request) {
   }
 
   /**
-   * 🔍 LOOKUP ASSIGNMENT
+   * 🔍 LOOKUP ASSIGNMENT (ONLY ASSIGNMENTS TABLE)
    */
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select(`
-      help_id,
-      status,
-      drivers (
-        name,
-        phone
-      )
-    `)
+    .select('help_id, status, driver_phone, driver_name')
     .eq('help_id', digits)
-    .single<AssignmentWithDriver>()
+    .single<Assignment>()
 
-  console.log('Supabase assignment:', assignment)
-  console.log('Supabase error:', error)
+  console.log('Assignment:', assignment)
+  console.log('Error:', error)
 
-  const driverPhone = assignment?.drivers?.phone
-  const driverName = assignment?.drivers?.name
-
-  console.log('Driver Name:', driverName)
-  console.log('Driver Phone:', driverPhone)
+  const driverPhone = assignment?.driver_phone
 
   /**
-   * ❌ INVALID HELP ID → retry
+   * ❌ REJECT CONDITIONS
+   * - not found
+   * - status is NOT pending
+   * - missing driver phone
    */
   if (
     error ||
     !assignment ||
-    assignment.status !== 'assigned' ||
+    assignment.status !== 'pending' ||
     !driverPhone
   ) {
-    console.log('Invalid Help ID. Asking again.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -112,7 +99,8 @@ export async function POST(request: Request) {
           action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
         >
           <Say language="de-DE">
-            Die Hilfe I D ist nicht gültig. Bitte versuchen Sie es erneut.
+            Die Hilfe I D ist nicht gültig oder bereits vergeben.
+            Bitte versuchen Sie es erneut.
           </Say>
         </Gather>
       </Response>`,
@@ -121,10 +109,8 @@ export async function POST(request: Request) {
   }
 
   /**
-   * ✅ VALID HELP ID → redirect to recording consent
+   * ✅ VALID → CONNECT DRIVER
    */
-  console.log('Help ID valid. Redirecting to recording consent.')
-
   return new NextResponse(
     `<Response>
       <Redirect method="POST">
