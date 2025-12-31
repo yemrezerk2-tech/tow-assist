@@ -44,7 +44,7 @@ export async function POST(request: Request) {
    * 🔁 ASK FOR HELP ID
    */
   if (!digits) {
-    console.log('No digits entered. Asking again.')
+    console.log('No digits entered. Asking for Help ID.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     .eq('help_id', digits)
     .single<AssignmentWithDriver>()
 
-  console.log('Supabase assignment data:', assignment)
+  console.log('Supabase assignment:', assignment)
   console.log('Supabase error:', error)
 
   const driverPhone = assignment?.drivers?.phone
@@ -94,10 +94,15 @@ export async function POST(request: Request) {
   console.log('Driver Phone:', driverPhone)
 
   /**
-   * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
+   * ❌ INVALID HELP ID → retry
    */
-  if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
-    console.log('Invalid help ID or driver not available. Re-asking.')
+  if (
+    error ||
+    !assignment ||
+    assignment.status !== 'assigned' ||
+    !driverPhone
+  ) {
+    console.log('Invalid Help ID. Asking again.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -116,23 +121,17 @@ export async function POST(request: Request) {
   }
 
   /**
-   * ✅ CONNECT DRIVER
+   * ✅ VALID HELP ID → redirect to recording consent
    */
-  console.log('Connecting caller to driver...')
+  console.log('Help ID valid. Redirecting to recording consent.')
+
   return new NextResponse(
     `<Response>
-      <Say language="de-DE">
-        Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
-      </Say>
-  
-      <Dial
-        callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
-        method="POST"
-      >
-        <Number>${driverPhone}</Number>
-      </Dial>
-
+      <Redirect method="POST">
+        https://www.getroadhelp.com/api/twilio/connect-driver?driver=${encodeURIComponent(
+          driverPhone
+        )}
+      </Redirect>
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )
