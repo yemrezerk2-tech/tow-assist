@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-
 type Assignment = {
   help_id: string
   status: string
@@ -24,9 +23,7 @@ export async function POST(request: Request) {
   console.log('Raw Digits:', rawDigits)
   console.log('Processed Digits:', digits)
 
-  /**
-   * 🚫 MAX ATTEMPTS = 3
-   */
+  /** 🚫 MAX ATTEMPTS */
   if (attempt > 3) {
     return new NextResponse(
       `<Response>
@@ -40,9 +37,7 @@ export async function POST(request: Request) {
     )
   }
 
-  /**
-   * 🔁 ASK FOR HELP ID
-   */
+  /** 🔁 ASK FOR HELP ID */
   if (!digits) {
     return new NextResponse(
       `<Response>
@@ -53,13 +48,7 @@ export async function POST(request: Request) {
           action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
         >
           <Say language="de-DE">
-            ${
-              attempt === 1
-                ? 'Willkommen bei Road Assistance. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : attempt === 3
-                ? 'Letzter Versuch. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : 'Die Eingabe war ungültig. Bitte versuchen Sie es erneut.'
-            }
+            Bitte geben Sie jetzt Ihre Hilfe I D ein.
           </Say>
         </Gather>
       </Response>`,
@@ -67,37 +56,30 @@ export async function POST(request: Request) {
     )
   }
 
-  /**
-   * 🔍 LOOKUP ASSIGNMENT (ONLY ASSIGNMENTS TABLE)
-   */
+  /** 🔍 LOOKUP ASSIGNMENT */
   const { data: assignment, error } = await supabase
-  .from('assignments')
-  .select(`
-    help_id,
-    status,
-    drivers (
-      phone,
-      name
-    )
-  `)
-  .eq('help_id', digits)
-  .single<Assignment>()
+    .from('assignments')
+    .select(`
+      help_id,
+      status,
+      drivers (
+        phone,
+        name
+      )
+    `)
+    .eq('help_id', digits)
+    .single<Assignment>()
 
   console.log('Assignment:', assignment)
   console.log('Error:', error)
 
   const driverPhone = assignment?.drivers?.phone
 
-  /**
-   * ❌ REJECT CONDITIONS
-   * - not found
-   * - status is NOT pending
-   * - missing driver phone
-   */
+  /** ❌ REJECT ONLY INVALID CASES */
   if (
     error ||
     !assignment ||
-    assignment.status !== 'assigned' ||
+    assignment.status === 'assigned' || // ✅ FIXED
     !driverPhone
   ) {
     return new NextResponse(
@@ -110,7 +92,6 @@ export async function POST(request: Request) {
         >
           <Say language="de-DE">
             Die Hilfe I D ist nicht gültig oder bereits vergeben.
-            Bitte versuchen Sie es erneut.
           </Say>
         </Gather>
       </Response>`,
@@ -118,9 +99,7 @@ export async function POST(request: Request) {
     )
   }
 
-  /**
-   * ✅ VALID → CONNECT DRIVER
-   */
+  /** ✅ PENDING → CONNECT DRIVER */
   return new NextResponse(
     `<Response>
       <Redirect method="POST">
