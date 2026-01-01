@@ -1,70 +1,35 @@
-import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  // Twilio sends application/x-www-form-urlencoded
-  const formData = await request.formData();
+  const formData = await request.formData()
 
-  const body = formData.get("Body")?.toString().trim().toLowerCase();
-  const from = formData.get("From")?.toString(); // whatsapp:+49123...
+  const from = formData.get('From') as string | null
+  const body = formData.get('Body') as string | null
 
-  console.log("📩 WhatsApp Reply:", body, "From:", from);
+  console.log('--- WHATSAPP INBOUND ---')
+  console.log('From:', from)
+  console.log('Message:', body)
 
-  if (!from) {
-    return NextResponse.json({ ok: false }, { status: 400 });
+  if (!from || !body) {
+    return new NextResponse('Invalid request', { status: 400 })
   }
 
-  const driverPhone = from.replace("whatsapp:", "");
+  const answer = body.trim().toUpperCase()
 
-  // 1️⃣ Find pending assignment
-  const { data: assignment, error: findError } = await supabase
-    .from("assignments")
-    .select("*")
-    .eq("driver_phone", driverPhone)
-    .eq("status", "pending")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .single();
-
-  if (findError || !assignment) {
-    return new Response(
-      `<Response>
-         <Message>No active assignment found.</Message>
-       </Response>`,
-      { headers: { "Content-Type": "text/xml" } }
-    );
+  if (answer === 'YES') {
+    console.log('✅ Task engaged')
+  } else if (answer === 'NO') {
+    console.log('❌ Task rejected')
+  } else {
+    console.log('⚠️ Unknown reply')
   }
 
-  // 2️⃣ YES → assign
-  if (body === "1" || body === "yes") {
-    const { error: updateError } = await supabase
-      .from("assignments")
-      .update({ status: "assigned" })
-      .eq("id", assignment.id);
-
-    if (updateError) {
-      console.error(updateError);
-      return new Response(
-        `<Response>
-           <Message>⚠️ Error updating assignment.</Message>
-         </Response>`,
-        { headers: { "Content-Type": "text/xml" } }
-      );
-    }
-
-    return new Response(
-      `<Response>
-         <Message>✅ Assignment confirmed. Thank you!</Message>
-       </Response>`,
-      { headers: { "Content-Type": "text/xml" } }
-    );
-  }
-
-  // 3️⃣ NO or anything else
-  return new Response(
+  return new NextResponse(
     `<Response>
-       <Message>❌ Assignment not confirmed.</Message>
-     </Response>`,
-    { headers: { "Content-Type": "text/xml" } }
-  );
+      <Message>
+        Thanks. We received your answer.
+      </Message>
+    </Response>`,
+    { headers: { 'Content-Type': 'text/xml' } }
+  )
 }

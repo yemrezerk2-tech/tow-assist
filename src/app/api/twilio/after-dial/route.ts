@@ -1,4 +1,10 @@
 import { NextResponse } from 'next/server'
+import twilio from 'twilio'
+
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID!,
+  process.env.TWILIO_AUTH_TOKEN!
+)
 
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -9,7 +15,7 @@ export async function POST(request: Request) {
   const dialStatus = formData.get('DialCallStatus')
   const dialDuration = formData.get('DialCallDuration')
   const dialSid = formData.get('DialCallSid')
-  const caller = formData.get('Caller')
+  const caller = formData.get('Caller') as string | null
 
   console.log('--- AFTER DIAL WEBHOOK ---')
   console.log('Dial Status:', dialStatus)
@@ -18,51 +24,39 @@ export async function POST(request: Request) {
   console.log('Caller:', caller)
   console.log('Driver Dialed:', driverPhone)
 
+  if (dialStatus === 'busy' || dialStatus === 'no-answer' || dialStatus === 'failed') {
+    return new NextResponse(
+      `<Response>
+        <Say language="de-DE">
+          Der Fahrer ist derzeit nicht verfügbar.
+        </Say>
+      </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
+  }
 
   /**
-   * Speak to caller based on outcome
+   * ✅ SUCCESS → SEND WHATSAPP MESSAGE
    */
-  if (dialStatus === 'busy') {
-    console.log('Driver is busy')
-    return new NextResponse(
-      `<Response>
-        <Say language="de-DE">
-          Der Fahrer ist derzeit besetzt.
-          Wir versuchen es erneut oder verbinden Sie mit einem anderen Fahrer.
-        </Say>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
-  }
+  if (dialStatus === 'completed' && caller) {
+    console.log('Call connected successfully → sending WhatsApp')
+  
+    try {
+      await client.messages.create({
+        from: process.env.TWILIO_WHATSAPP_FROM!, // whatsapp:+14155238886
+        to: `whatsapp:${caller}`,                // receiver joined sandbox
+        body: `Caller: ${caller}
+  
+      Task engaged?
+      Reply with:
+      YES
+      NO`,
+          })
+        } catch (err) {
+          console.error('Failed to send WhatsApp message:', err)
+        }
+      }
 
-  if (dialStatus === 'no-answer') {
-    console.log('Driver did not answer')
-    return new NextResponse(
-      `<Response>
-        <Say language="de-DE">
-          Der Fahrer konnte Ihren Anruf leider nicht entgegennehmen.
-          Bitte bleiben Sie in der Leitung.
-        </Say>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
-  }
-
-  if (dialStatus === 'failed') {
-    console.log('Driver not reachable')
-    return new NextResponse(
-      `<Response>
-        <Say language="de-DE">
-          Der Fahrer ist derzeit nicht erreichbar.
-          Wir verbinden Sie gleich mit einem anderen Fahrer.
-        </Say>
-      </Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
-    )
-  }
-
-  console.log('Call connected successfully')
-  // Successful call
   return new NextResponse(
     `<Response>
       <Say language="de-DE">
