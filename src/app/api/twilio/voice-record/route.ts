@@ -14,26 +14,19 @@ export async function POST(request: Request) {
   console.log('Recording:', shouldRecord)
   console.log('Driver:', driver)
 
-  const dial = shouldRecord
-    ? `
-      <Dial
-        callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        record="record-from-answer"
-        action="https://www.getroadhelp.com/api/twilio/after-dial"
-        method="POST"
-      >
-        <Number>${driver}</Number>
-      </Dial>
-    `
-    : `
-      <Dial
-        callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        action="https://www.getroadhelp.com/api/twilio/after-dial"
-        method="POST"
-      >
-        <Number>${driver}</Number>
-      </Dial>
-    `
+  const dial = `
+    <Dial
+      callerId="${process.env.TWILIO_PHONE_NUMBER}"
+      ${shouldRecord ? 'record="record-from-answer"' : ''}
+      action="https://www.getroadhelp.com/api/twilio/after-dial"
+      method="POST"
+      statusCallback="https://www.getroadhelp.com/api/twilio/after-dial"
+      statusCallbackEvent="answered completed"
+      statusCallbackMethod="POST"
+    >
+      <Number>${driver}</Number>
+    </Dial>
+  `
 
   return new NextResponse(
     `<Response>
