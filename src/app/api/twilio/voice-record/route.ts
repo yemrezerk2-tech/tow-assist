@@ -16,16 +16,16 @@ export async function POST(request: Request) {
 
   const dial = `
     <Dial
-      callerId="${process.env.TWILIO_PHONE_NUMBER}"
-      ${shouldRecord ? 'record="record-from-answer"' : ''}
-      action="https://www.getroadhelp.com/api/twilio/after-dial"
-      method="POST"
-      statusCallback="https://www.getroadhelp.com/api/twilio/after-dial"
-      statusCallbackEvent="answered completed"
-      statusCallbackMethod="POST"
-    >
-      <Number>${driver}</Number>
-    </Dial>
+  callerId="+498000009196"
+  record="record-from-answer"
+  action="https://www.getroadhelp.com/api/twilio/after-dial"
+  method="POST"
+  statusCallback="https://www.getroadhelp.com/api/twilio/after-dial"
+  statusCallbackEvent="answered completed"
+  statusCallbackMethod="POST"
+>
+  <Number>+491782314362</Number>
+</Dial>
   `
 
   return new NextResponse(
