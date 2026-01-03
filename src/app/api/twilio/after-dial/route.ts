@@ -39,35 +39,36 @@ export async function POST(request: Request) {
    * ✅ SUCCESS → SEND WHATSAPP MESSAGE
    */
 
-  function normalize(phone: string | null) {
-    if (!phone) return null
-    phone = phone.trim()
-    if (!phone.startsWith('+')) {
-      phone = '+' + phone.replace(/\D/g, '')
+  function normalize(phone?: string | null): string {
+    if (!phone) throw new Error('Missing phone number')
+  
+    // Remove spaces, quotes, invisible chars
+    let cleaned = phone.replace(/[^\d+]/g, '')
+  
+    // Ensure leading +
+    if (!cleaned.startsWith('+')) {
+      cleaned = `+${cleaned}`
     }
-    return phone
-  }
+  
+    return cleaned
+  } 
 
   if (dialStatus === 'answered' && caller && driverPhone) {
-    console.log('Call answered → sending WhatsApp to driver')
-  
     const driver = normalize(driverPhone)
     const callerPhone = normalize(caller)
   
-    try {
-      await client.messages.create({
-        from: process.env.TWILIO_WHATSAPP_FROM!, // whatsapp:+14155238886
-        to: `whatsapp:${driver}`,
-        body: `Caller: ${callerPhone}
+    console.log('Answered → sending WhatsApp to', driver)
+  
+    await client.messages.create({
+      from: process.env.TWILIO_WHATSAPP_FROM!,
+      to: `whatsapp:${driver}`,
+      body: `Caller: ${callerPhone}
   
   Task engaged?
   Reply with:
   YES
   NO`,
-      })
-    } catch (err) {
-      console.error('Failed to send WhatsApp message:', err)
-    }
+    })
   }
 
   return new NextResponse(
