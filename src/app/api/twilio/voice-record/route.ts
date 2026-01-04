@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server'
 
+function normalize(phone?: string | null): string {
+  if (!phone) throw new Error('Missing phone number')
+
+  let cleaned = phone.replace(/[^\d+]/g, '')
+  if (!cleaned.startsWith('+')) cleaned = `+${cleaned}`
+
+  return cleaned
+}
+
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url)
-  const driver = searchParams.get('driver')
+  const driver = normalize(searchParams.get('driver'))
 
   const formData = await request.formData()
   const digits = formData.get('Digits')
@@ -16,16 +25,16 @@ export async function POST(request: Request) {
 
   const dial = `
     <Dial
-  callerId="+498000009196"
-  record="record-from-answer"
-  action="https://www.getroadhelp.com/api/twilio/after-dial"
-  method="POST"
-  statusCallback="https://www.getroadhelp.com/api/twilio/after-dial"
-  statusCallbackEvent="answered completed"
-  statusCallbackMethod="POST"
->
-  <Number>+491782314362</Number>
-</Dial>
+      callerId="${process.env.TWILIO_PHONE_NUMBER}"
+      ${shouldRecord ? 'record="record-from-answer"' : ''}
+      action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driver)}"
+      method="POST"
+      statusCallback="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driver)}"
+      statusCallbackEvent="answered completed"
+      statusCallbackMethod="POST"
+    >
+      <Number>${driver}</Number>
+    </Dial>
   `
 
   return new NextResponse(
