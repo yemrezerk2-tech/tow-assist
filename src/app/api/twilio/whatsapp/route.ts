@@ -44,28 +44,33 @@ export async function POST(request: Request) {
   if (answer === 'YES') {
     console.log('✅ Task engaged')
   
-    const { data: assignment } = await supabase
+    const { data: assignments, error } = await supabase
       .from('assignments')
       .select('id')
       .eq('driver_id', driver.id)
       .eq('status', 'pending')
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false }) // latest
       .limit(1)
-      .maybeSingle()
   
-    if (!assignment) {
+    if (error || !assignments || assignments.length === 0) {
       console.log('⚠️ No pending assignment')
-    } else {
-      const { error } = await supabase
-        .from('assignments')
-        .update({ status: 'assigned' })
-        .eq('id', assignment.id)
+      return
+    }
   
-      if (!error) {
-        console.log('✅ Assignment locked to driver')
-      }
+    const assignment = assignments[0]
+  
+    const { error: updateError } = await supabase
+      .from('assignments')
+      .update({ status: 'assigned' })
+      .eq('id', assignment.id)
+  
+    if (updateError) {
+      console.error('❌ Failed to assign task', updateError)
+    } else {
+      console.log('✅ Assignment locked to driver')
     }
   }
+  
 
   if (answer === 'NO') {
     console.log('❌ Task rejected')
