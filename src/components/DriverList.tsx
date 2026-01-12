@@ -156,7 +156,7 @@ const createHelpId = () => {
           <div className="road-sign border-4 border-black rounded-2xl p-6 mb-6 animate-glow">
             <div className="text-center mb-4">
               <Shield className="w-12 h-12 text-black mx-auto mb-2" />
-              <h3 className="text-lg font-bold text-black mb-1">Ihre Hilfe-I1</h3>
+              <h3 className="text-lg font-bold text-black mb-1">Ihre Hilfe-ID</h3>
               <p className="text-gray-700 text-sm mb-4">
                 Geben Sie diese ID am Telefon durch
               </p>
