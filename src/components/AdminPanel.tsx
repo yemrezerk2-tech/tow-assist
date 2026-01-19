@@ -120,7 +120,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       setIsDataLoading(true)
       const apiUrl = showArchivedDrivers 
         ? '/api/drivers?archived_only=true'
-        : '/api/drivers?include_archived=false'
+        : '/api/drivers?include_archived=true'
       
       const apiResponse = await fetch(apiUrl)
       if (!apiResponse.ok) throw new Error('Failed to fetch drivers')
