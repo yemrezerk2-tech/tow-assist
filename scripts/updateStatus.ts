@@ -14,9 +14,9 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function updateAssignmentHelpId() {
   const { data, error } = await supabase
-    .from('assignments')
-    .update({ status: 'pending' })      // ✅ correct column
-    .eq('id', 'ASN1765796634021')     // ✅ target assignment
+    .from('drivers')
+    .update({ available: 'false' })      // ✅ correct column
+    .eq('id', 'DRV1767730058182')     // ✅ target assignment
     .select()
     .single()
 
