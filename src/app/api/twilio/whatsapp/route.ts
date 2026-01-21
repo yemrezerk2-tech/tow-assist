@@ -57,7 +57,14 @@ export async function POST(request: Request) {
 
     if (assignmentError || !assignments || assignments.length === 0) {
       console.log('⚠️ No pending assignment')
-      return NextResponse.xml('<Response><Message>No pending assignment.</Message></Response>')
+      return new NextResponse(
+        `<Response>
+           <Message>No pending assignment.</Message>
+         </Response>`,
+        {
+          headers: { 'Content-Type': 'text/xml' },
+        }
+      )
     }
 
     const assignment = assignments[0]
