@@ -63,14 +63,10 @@ export async function POST(request: Request) {
       const msg = await client.messages.create({
         from: process.env.TWILIO_WHATSAPP_FROM!,
         to: `whatsapp:${driverPhone}`,
-        body: `Caller: ${callerPhone} ${dialStatus}
-    
-    Task engaged?
-    Reply with:
-    YES
-    NO
-    After TASK is completed please send 'COMPLETE'
-    `,
+        contentSid: process.env.TWILIO_WHATSAPP_TEMPLATE_SID!,
+        contentVariables: JSON.stringify({
+          "1": callerPhone
+        })
       })
     
       console.log('WhatsApp sent SID:', msg.sid)
