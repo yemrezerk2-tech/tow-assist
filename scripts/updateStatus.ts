@@ -3,28 +3,38 @@ dotenv.config({ path: '.env.local' })
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables')
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-async function updateAssignmentHelpId() {
-  const { data, error } = await supabase
+async function fixDriverAndAssignments() {
+  const driverId = 'DRV1767730058182'
+
+  // 1️⃣ Reset assignments for this driver
+  const { error: assignmentError } = await supabase
     .from('assignments')
-    .update({ status: 'pending' })      // ✅ correct column
-    .eq('id', 'ASN1765796634021')     // ✅ target assignment
+    .update({ status: 'pending' })
+    .eq('driver_id', driverId)
+
+  if (assignmentError) {
+    console.error('❌ Assignment update failed:', assignmentError)
+    return
+  }
+
+  // 2️⃣ Mark driver available (BOOLEAN!)
+  const { data, error: driverError } = await supabase
+    .from('drivers')
+    .update({ available: true })
+    .eq('id', driverId)
     .select()
     .single()
 
-  if (error) {
-    console.error('❌ Update failed:', error)
+  if (driverError) {
+    console.error('❌ Driver update failed:', driverError)
   } else {
-    console.log('✅ Assignment updated:', data)
+    console.log('✅ Driver fixed:', data)
   }
 }
 
-updateAssignmentHelpId()
+fixDriverAndAssignments()

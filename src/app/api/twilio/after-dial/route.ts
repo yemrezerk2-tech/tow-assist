@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   const dialStatus = formData.get('DialCallStatus')
   const dialDuration = formData.get('DialCallDuration')
   const dialSid = formData.get('DialCallSid')
-  const caller = formData.get('Caller') as string | null
+  const caller = formData.get('From') as string | null
 
 
   console.log('--- AFTER DIAL WEBHOOK ---')
@@ -53,24 +53,28 @@ export async function POST(request: Request) {
    * ✅ SUCCESS → SEND WHATSAPP MESSAGE
    */
 
-  if ((dialStatus === 'answered' || dialStatus === 'completed') && caller && driver) {
+  if (dialStatus === 'completed' && caller && driver) {
     const driverPhone = normalize(driver)
     const callerPhone = normalize(caller)
   
     console.log('Answered → sending WhatsApp to', driver)
   
-    await client.messages.create({
-      from: process.env.TWILIO_WHATSAPP_FROM!,
-      to: `whatsapp:${driverPhone}`,
-      body: `Caller: ${callerPhone} ${dialStatus}
-  
-  Task engaged?
-  Reply with:
-  YES
-  NO
-  After TASK is completed please send 'COMPLETE'
-  `,
-    })
+    try {
+      const msg = await client.messages.create({
+        from: process.env.TWILIO_WHATSAPP_FROM!,
+        to: `whatsapp:${driverPhone}`,
+        contentSid: process.env.TWILIO_WHATSAPP_TEMPLATE_SID!,
+        contentVariables: JSON.stringify({
+          "1": callerPhone
+        })
+      })
+    
+      console.log('WhatsApp sent SID:', msg.sid)
+    
+    } catch (err) {
+      console.error('WhatsApp send error:', err)
+    }
+
   }
 
 

@@ -19,9 +19,15 @@ export async function POST(request: Request) {
   console.log('--- WHATSAPP INBOUND ---')
   console.log('From:', from)
   console.log('Message:', body)
+  console.log('Test basliyor')
 
   if (!from || !body) {
-    return new NextResponse('Invalid request', { status: 400 })
+    return new NextResponse(
+      `<Response>
+        <Message>Invalid message.</Message>
+      </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
   }
 
   const answer = body.trim().toUpperCase()
@@ -34,44 +40,66 @@ export async function POST(request: Request) {
     .eq('phone', phone)
     .single()
 
+  // Replace your "Driver not found" return with this:
   if (driverError || !driver) {
-    console.error('❌ Driver not found')
-    return new NextResponse('Driver not found', { status: 404 })
+    return new NextResponse(
+      `<Response>
+         <Message>Driver not found.</Message>
+       </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
   }
 
   console.log('Driver ID:', driver.id)
 
+  /** =========================
+   * ✅ YES → accept assignment
+   * ========================= */
   if (answer === 'YES') {
     console.log('✅ Task engaged')
-  
-    const { data: assignments, error } = await supabase
+
+    const { data: assignments, error: assignmentError } = await supabase
       .from('assignments')
       .select('id')
       .eq('driver_id', driver.id)
       .eq('status', 'pending')
-      .order('created_at', { ascending: false }) // latest
+      .order('created_at', { ascending: false })
       .limit(1)
-  
-    if (error || !assignments || assignments.length === 0) {
+
+    if (assignmentError || !assignments || assignments.length === 0) {
       console.log('⚠️ No pending assignment')
-      return
+      return new NextResponse(
+        `<Response>
+           <Message>No pending assignment.</Message>
+         </Response>`,
+        {
+          headers: { 'Content-Type': 'text/xml' },
+        }
+      )
     }
-  
+
     const assignment = assignments[0]
-  
-    const { error: updateError } = await supabase
+
+    const { error: updateAssignmentError } = await supabase
       .from('assignments')
       .update({ status: 'assigned' })
       .eq('id', assignment.id)
-  
-    if (updateError) {
-      console.error('❌ Failed to assign task', updateError)
-    } else {
-      console.log('✅ Assignment locked to driver')
-    }
-  }
-  
 
+    if (updateAssignmentError) {
+      console.error('❌ Failed to assign task', updateAssignmentError)
+    }
+
+    await supabase
+      .from('drivers')
+      .update({ available: false }) // boolean
+      .eq('id', driver.id)
+
+    console.log('✅ Assignment locked & driver unavailable')
+  }
+
+  /** ======================
+   * ❌ NO → reject task
+   * ====================== */
   if (answer === 'NO') {
     console.log('❌ Task rejected')
 
@@ -80,25 +108,37 @@ export async function POST(request: Request) {
       .update({ status: 'rejected' })
       .eq('driver_id', driver.id)
       .eq('status', 'pending')
-      .limit(1)
   }
 
+  /** ==========================
+   * 🔄 COMPLETE → finish task
+   * ========================== */
   if (answer === 'COMPLETE') {
-    console.log('🔄 Driver finished task, setting status to pending')
-    const { error } = await supabase
+    console.log('🔄 Driver finished task')
+
+    const { data: assignment } = await supabase
       .from('assignments')
-      .update({ status: 'pending' })
+      .select('id')
+      .eq('driver_id', driver.id)
       .eq('status', 'assigned')
       .order('created_at', { ascending: true })
       .limit(1)
-    
-    if (error) {
-      console.error('❌ Failed to update driver status', error)
-      return new NextResponse('Failed to update driver status', { status: 500 })
+      .single()
+
+    if (assignment) {
+      await supabase
+        .from('assignments')
+        .update({ status: 'completed' })
+        .eq('id', assignment.id)
     }
 
-    console.log('✅ Driver status updated to pending')
-  } 
+    await supabase
+      .from('drivers')
+      .update({ available: true }) // driver is free again
+      .eq('id', driver.id)
+
+    console.log('✅ Task completed, driver available')
+  }
 
   return new NextResponse(
     `<Response>
