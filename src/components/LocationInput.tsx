@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Location } from '@/types'
-import { Navigation, ArrowLeft, Satellite, Crosshair, Search, MapPin, Building, Home } from 'lucide-react'
+import { Navigation, ArrowLeft, Satellite, Crosshair, Search, MapPin, Building, Home, Info } from 'lucide-react'
 import { useGoogleMaps } from '@/hooks/useGoogleMaps'
 
 interface LocationInputProps {
@@ -463,7 +463,13 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
             </div>
           )}
         </div>
-
+      {/* Intermediary notice */}
+      <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg flex items-start gap-3">
+        <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-800">
+          <span className="font-semibold">Hinweis:</span> Wir sind eine Vermittlungsplattform. Sie wählen einen Fahrer aus, erhalten eine Hilfe-ID und rufen unser Callcenter an. Wir verbinden Sie dann direkt mit dem ausgewählten Fahrer.
+        </p>
+      </div>
         {/* Rest of the component remains the same */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">

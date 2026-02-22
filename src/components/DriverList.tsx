@@ -10,6 +10,7 @@ interface DriverListProps {
   onSelectDriver: (driver: Driver) => void
   userLocation: Location
   onBack: () => void
+  onNewRequest?: () => void
 }
 
 export default function DriverList({ 
@@ -17,7 +18,8 @@ export default function DriverList({
   selectedDriver, 
   onSelectDriver, 
   userLocation, 
-  onBack 
+  onBack,
+  onNewRequest 
 }: DriverListProps) {
   const [isCreatingAssignment, setIsCreatingAssignment] = useState(false)
   const [helpId, setHelpId] = useState<string>('')
@@ -204,7 +206,7 @@ const createHelpId = () => {
             </div>
 
             <button
-              onClick={onBack}
+              onClick={onNewRequest || onBack}
               className="w-full pro-card border-2 border-gray-300 text-gray-700 rounded-2xl py-4 hover:border-yellow-500 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-5 h-5" />

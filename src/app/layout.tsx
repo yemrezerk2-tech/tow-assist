@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import Link from 'next/link'
-
+import Header from '@/components/Header';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -63,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={inter.className}>
+        <Header/> 
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col">
             <main className="flex-1">

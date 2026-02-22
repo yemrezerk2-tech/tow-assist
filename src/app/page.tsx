@@ -23,6 +23,15 @@ export default function Home() {
   
   const router = useRouter()
 
+  const getStepFromURL = (): AppState => {
+  if (typeof window === 'undefined') return 'welcome'
+  const params = new URLSearchParams(window.location.search)
+  const step = params.get('step')
+  if (step && ['welcome', 'location-input', 'driver-selection', 'assignment'].includes(step)) {
+    return step as AppState
+  }
+  return 'welcome'
+}
   // Handle initial page load animations and setup
   useEffect(() => {
     setIsVisible(true)
@@ -34,7 +43,39 @@ export default function Home() {
     
     return () => clearTimeout(delayTimer)
   }, [])
+  useEffect(() => {
+    setIsVisible(true)
 
+    setAppState(getStepFromURL())
+
+    const delayTimer = setTimeout(() => {
+      setShowAdminButton(true)
+    }, 1000)
+
+    return () => clearTimeout(delayTimer)
+  }, [])
+
+
+  useEffect(() => {
+    const currentStep = getStepFromURL()
+    if (currentStep !== appState) {
+      window.history.pushState({ step: appState }, '', `/?step=${appState}`)
+    }
+  }, [appState])
+
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.step) {
+        setAppState(event.state.step)
+      } else {
+
+        setAppState(getStepFromURL())
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
   // Load available drivers from API endpoint
   useEffect(() => {
     async function loadDriverData() {
@@ -85,23 +126,22 @@ export default function Home() {
     setAppState('assignment')
   }
 
-  // Return to initial welcome state and clear all data
-  const handleBackToWelcome = () => {
-    setAppState('welcome')
-    setUserLocation(null)
-    setSelectedDriver(null)
-    setClosestDrivers([])
-  }
 
-  const handleBackToLocation = () => {
-    setAppState('location-input')
-    setSelectedDriver(null) // Reset driver selection
-  }
 
   const handleAdminAccess = () => {
     router.push('/admin/login')
   }
+  const handleGoBack = () => {
+    window.history.back()
+  }
 
+ const handleNewRequest = () => {
+  window.history.replaceState({ step: 'welcome' }, '', '/')
+  setAppState('welcome')
+  setUserLocation(null)
+  setSelectedDriver(null)
+  setClosestDrivers([])
+} 
   // Render different content based on current application state
   const renderContent = () => {
     switch (appState) {
@@ -175,7 +215,7 @@ export default function Home() {
         return (
           <div className="max-w-2xl mx-auto pro-card rounded-3xl p-8 shadow-xl transform hover-lift">
             <LocationInput 
-              onBack={handleBackToWelcome}
+              onBack={handleGoBack}
               onLocationSelect={handleLocationSelect}
             />
           </div>
@@ -202,7 +242,7 @@ export default function Home() {
               selectedDriver={selectedDriver}
               onSelectDriver={handleSelectDriver}
               userLocation={userLocation!}
-              onBack={handleBackToLocation}
+              onBack={handleGoBack}
             />
           </div>
         )
@@ -215,7 +255,7 @@ export default function Home() {
               selectedDriver={selectedDriver}
               onSelectDriver={handleSelectDriver}
               userLocation={userLocation!}
-              onBack={handleBackToWelcome}
+              onBack={handleGoBack}
             />
           </div>
         )
@@ -252,27 +292,6 @@ export default function Home() {
               </span>
             </button>
             
-            <button
-              onClick={() => router.push('/partners')}
-              className="group flex items-center gap-2 pro-card border-2 border-gray-300 rounded-xl px-4 py-3 hover:border-blue-500 transition-all duration-300 hover-lift"
-              title="Partner werden"
-            >
-              <Users className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
-              <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700 hidden sm:block">
-                Partner
-              </span>
-            </button>
-
-            <button
-              onClick={() => router.push('/contact')}
-              className="group flex items-center gap-2 pro-card border-2 border-gray-300 rounded-xl px-4 py-3 hover:border-green-500 transition-all duration-300 hover-lift"
-              title="Kontakt"
-            >
-              <Mail className="w-4 h-4 text-gray-600 group-hover:text-green-600 transition-colors" />
-              <span className="text-sm font-medium text-gray-700 group-hover:text-green-700 hidden sm:block">
-                Kontakt
-              </span>
-            </button>
           </div>
         </div>
       )}
