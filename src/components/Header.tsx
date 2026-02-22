@@ -43,13 +43,6 @@ export default function Header() {
               <Mail className="w-4 h-4" />
               <span className="text-sm md:text-base font-medium">Kontakt</span>
             </Link>
-            <a
-              href={`tel:${contactPhone}`}
-              className="flex items-center gap-1 md:gap-2 road-sign px-3 md:px-5 py-2 rounded-xl font-semibold hover:scale-105 transition-transform"
-            >
-              <Phone className="w-4 h-4" />
-              <span className="text-sm md:text-base">Notruf</span>
-            </a>
           </nav>
         </div>
       </div>
