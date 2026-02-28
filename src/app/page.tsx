@@ -7,7 +7,7 @@ import DriverList from '@/components/DriverList'
 import { Driver, Location } from '@/types'
 import { useRouter } from 'next/navigation'
 import { findClosestDrivers } from '@/lib/geoUtils'
-
+import BlogCarousel from '@/components/BlogCarousel';
 
 type AppState = 'welcome' | 'location-input' | 'driver-selection' | 'assignment' | 'confirmation'
 
@@ -277,24 +277,6 @@ export default function Home() {
         <div className="absolute bottom-40 left-20 w-5 h-5 bg-yellow-400 rounded-full animate-float opacity-30" style={{animationDelay: '4s'}}></div>
       </div>
 
-      {/* Navigation buttons (Admin, Partners, Contact) - visible only on welcome */}
-      {appState === 'welcome' && showAdminButton && (
-        <div className="fixed top-4 right-4 z-50 animate-slide-up">
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={handleAdminAccess}
-              className="group flex items-center gap-2 pro-card border-2 border-gray-300 rounded-xl px-4 py-3 hover:border-yellow-500 transition-all duration-300 hover-lift"
-              title="Admin Panel"
-            >
-              <Settings className="w-4 h-4 text-gray-600 group-hover:text-yellow-600 transition-colors" />
-              <span className="text-sm font-medium text-gray-700 group-hover:text-yellow-700 hidden sm:block">
-                Admin
-              </span>
-            </button>
-            
-          </div>
-        </div>
-      )}
 
       <section className="relative z-10">
         <div className="container mx-auto px-4 py-16 md:py-24">
@@ -338,7 +320,10 @@ export default function Home() {
       </section>
 
       {appState === 'welcome' && (
+        <>
         <FeaturesSection />
+        <BlogCarousel />
+        </>
       )}
     </main>
   )

@@ -7,7 +7,7 @@ import { Driver, Location, WorkingHours } from '@/types'
 import { 
   Plus, Trash2, Edit, Save, X, Car, Phone, MapPin, Euro, 
   LogOut, Users, ClipboardList, RefreshCw, Filter, Mail, MessageCircle,
-  Archive, RotateCcw
+  Archive, RotateCcw, FileText   
 } from 'lucide-react'
 
 // This component handles the admin dashboard for managing drivers and job assignments
@@ -73,9 +73,21 @@ interface ContactRequest {
   status: string
   created_at: string
 }
-
+interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  content: string
+  featured_image: string | null
+  published: boolean
+  published_at: string | null
+  created_at: string
+  updated_at: string
+}
 export default function AdminPanel({ onClose }: AdminPanelProps) {
   const handleClose = () => onClose();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
   const [driverList, setDriverList] = useState<Driver[]>([])
   const [assignmentList, setAssignmentList] = useState<Assignment[]>([])
   const [partnerRequests, setPartnerRequests] = useState<PartnershipRequest[]>([])
@@ -83,10 +95,12 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [isDataLoading, setIsDataLoading] = useState(true)
   const [currentEditDriver, setCurrentEditDriver] = useState<Driver | null>(null)
   const [displayAddForm, setDisplayAddForm] = useState(false)
-  const [selectedTab, setSelectedTab] = useState<'drivers' | 'assignments' | 'partnerships' | 'contacts'>('drivers')
+  const [selectedTab, setSelectedTab] = useState<'drivers' | 'assignments' | 'partnerships' | 'contacts' | 'blog'>('drivers')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [showArchivedDrivers, setShowArchivedDrivers] = useState(false)
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [showBlogForm, setShowBlogForm] = useState(false);
 
   const [newDriverInfo, setNewDriverInfo] = useState<NewDriverData>({
     name: '',
@@ -114,7 +128,17 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       sun: ["10:00", "16:00"]
     }
   })
-
+const loadBlogPosts = useCallback(async () => {
+  try {
+    const response = await fetch('/api/blog?admin=true')
+    if (response.ok) {
+      const data = await response.json()
+      setBlogPosts(data)
+    }
+  } catch (err) {
+    console.error('Error loading blog posts:', err)
+  }
+}, [])
 const loadDriverData = useCallback(async () => {
   try {
     setIsDataLoading(true)
@@ -180,7 +204,8 @@ const loadDriverData = useCallback(async () => {
     loadAssignmentData() 
     loadPartnershipData()
     loadContactData()
-  }, [refreshTrigger, showArchivedDrivers, loadDriverData, loadAssignmentData, loadPartnershipData, loadContactData])
+    loadBlogPosts()
+  }, [refreshTrigger, showArchivedDrivers, loadDriverData, loadAssignmentData, loadPartnershipData, loadContactData, loadBlogPosts])
 
   // Function to restore archived driver back to active status
   const handleDriverRestore = async (driverId: string) => {
@@ -1109,6 +1134,17 @@ const displayWorkingHours = (workingHours: unknown): string => {
             Fahrer ({showArchivedDrivers ? archivedDriversList.length : activeDriversList.length})
           </button>
           <button
+            onClick={() => setSelectedTab('blog')}
+            className={`flex items-center gap-2 px-4 py-3 font-semibold border-b-2 transition-colors ${
+              selectedTab === 'blog' 
+                ? 'border-yellow-500 text-yellow-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            Blog ({blogPosts.length})
+          </button>
+          <button
             onClick={() => setSelectedTab('assignments')}
             className={`flex items-center gap-2 px-4 py-3 font-semibold border-b-2 transition-colors ${
               selectedTab === 'assignments' 
@@ -1141,8 +1177,9 @@ const displayWorkingHours = (workingHours: unknown): string => {
             <MessageCircle className="w-4 h-4" />
             Kontakte ({contactRequests.length})
           </button>
+          
         </div>
-
+              
         {selectedTab === 'drivers' && (
           <div className="space-y-8">
             {showArchivedDrivers ? (
@@ -1573,7 +1610,255 @@ const displayWorkingHours = (workingHours: unknown): string => {
             </div>
           </div>
         )}
+{selectedTab === 'blog' && (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <h2 className="text-2xl font-bold">Blog Beiträge</h2>
+      <button
+        onClick={() => {
+          setEditingPost({
+            id: '',
+            title: '',
+            slug: '',
+            excerpt: '',
+            content: '',
+            featured_image: '',
+            published: false,
+            published_at: null,
+            created_at: '',
+            updated_at: ''
+          });
+          setShowBlogForm(true);
+        }}
+        className="road-sign px-4 py-2 font-semibold flex items-center gap-2"
+      >
+        <Plus className="w-4 h-4" />
+        Neuer Beitrag
+      </button>
+    </div>
 
+    {blogPosts.map(post => (
+      <div key={post.id} className="pro-card rounded-2xl p-4 border-2 border-gray-300">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-bold text-lg">{post.title}</h3>
+            <p className="text-sm text-gray-600">{post.excerpt}</p>
+            <div className="mt-2 text-xs">
+              Status: {post.published ? 'Veröffentlicht' : 'Entwurf'} | 
+              Slug: {post.slug}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setEditingPost(post);
+                setShowBlogForm(true);
+              }}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              onClick={async () => {
+                if (!confirm('Beitrag löschen?')) return;
+                try {
+                  const res = await fetch(`/api/blog/${post.id}`, {
+                    method: 'DELETE',
+                  });
+                  if (res.ok) {
+                    setRefreshTrigger((prev: number) => prev + 1);
+                    alert('Beitrag gelöscht');
+                  } else {
+                    alert('Fehler beim Löschen');
+                  }
+                } catch (err) {
+                  console.error(err);
+                  alert('Fehler beim Löschen');
+                }
+              }}
+              className="p-2 text-red-600 hover:bg-red-50 rounded"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+
+    {blogPosts.length === 0 && (
+      <div className="text-center pro-card rounded-2xl p-12 border-4 border-gray-400">
+        <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FileText className="w-8 h-8 text-white" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Keine Blog Beiträge</h3>
+        <p className="text-gray-600 mb-6">
+          Erstellen Sie Ihren ersten Blog Beitrag.
+        </p>
+      </div>
+    )}
+
+    {/* Blog Post Form Modal */}
+    {showBlogForm && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-900">
+              {editingPost?.id ? 'Beitrag bearbeiten' : 'Neuen Beitrag erstellen'}
+            </h3>
+            <button
+              onClick={() => setShowBlogForm(false)}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!editingPost) return;
+              
+              // Auto-generate slug from title if empty
+              const slug = editingPost.slug || editingPost.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+
+              const postData = {
+                ...editingPost,
+                slug,
+              };
+
+              try {
+                const url = editingPost.id
+                  ? `/api/blog/${editingPost.id}`
+                  : '/api/blog';
+                const method = editingPost.id ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                  method,
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(postData),
+                });
+
+                if (res.ok) {
+                  setShowBlogForm(false);
+                  setEditingPost(null);
+                  setRefreshTrigger((prev: number) => prev + 1);
+                  alert(editingPost.id ? 'Beitrag aktualisiert' : 'Beitrag erstellt');
+                } else {
+                  const error = await res.json();
+                  alert(`Fehler: ${error.error || 'Unbekannter Fehler'}`);
+                }
+              } catch (err) {
+                console.error(err);
+                alert('Fehler beim Speichern');
+              }
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Titel *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingPost?.title || ''}
+                onChange={(e) => setEditingPost(prev => prev ? { ...prev, title: e.target.value } : null)}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Slug (URL-Pfad)
+              </label>
+              <input
+                type="text"
+                value={editingPost?.slug || ''}
+                onChange={(e) => setEditingPost(prev => prev ? { ...prev, slug: e.target.value } : null)}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30"
+                placeholder="wird automatisch aus Titel generiert"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Wenn leer, wird der Slug automatisch aus dem Titel erstellt.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kurzbeschreibung (Excerpt)
+              </label>
+              <textarea
+                value={editingPost?.excerpt || ''}
+                onChange={(e) => setEditingPost(prev => prev ? { ...prev, excerpt: e.target.value } : null)}
+                rows={2}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Inhalt *
+              </label>
+              <textarea
+                required
+                value={editingPost?.content || ''}
+                onChange={(e) => setEditingPost(prev => prev ? { ...prev, content: e.target.value } : null)}
+                rows={6}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 font-mono"
+                placeholder="HTML wird unterstützt"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bild-URL (optional)
+              </label>
+              <input
+                type="url"
+                value={editingPost?.featured_image || ''}
+                onChange={(e) => setEditingPost(prev => prev ? { ...prev, featured_image: e.target.value } : null)}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl">
+              <input
+                type="checkbox"
+                id="published"
+                checked={editingPost?.published || false}
+                onChange={(e) => setEditingPost(prev => prev ? { ...prev, published: e.target.checked } : null)}
+                className="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500"
+              />
+              <label htmlFor="published" className="text-sm font-medium text-gray-700">
+                Veröffentlicht
+              </label>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="submit"
+                className="flex-1 road-sign py-3 font-semibold transition-all duration-300 hover:scale-105"
+              >
+                Speichern
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowBlogForm(false)}
+                className="flex-1 pro-card border-2 border-gray-300 py-3 font-semibold text-gray-700 rounded-xl hover:border-red-500 transition-colors"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+  </div>
+)}
         {displayAddForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
