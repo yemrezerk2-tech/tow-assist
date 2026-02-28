@@ -14,7 +14,7 @@ async function fixDriverAndAssignments() {
   // 1️⃣ Reset assignments for this driver
   const { error: assignmentError } = await supabase
     .from('assignments')
-    .update({ status: 'pending' })
+    .update({ phone: '+491703814443' })
     .eq('driver_id', driverId)
 
   if (assignmentError) {
