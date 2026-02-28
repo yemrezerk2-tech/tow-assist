@@ -39,6 +39,8 @@ export async function POST(request: Request) {
     .select('id, phone')
     .eq('phone', phone)
     .single()
+    
+  console.log('Driver tablosundan alinan data', driver, !driver, driverError)
 
   // Replace your "Driver not found" return with this:
   if (driverError || !driver) {

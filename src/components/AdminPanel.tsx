@@ -10,6 +10,20 @@ import {
   Archive, RotateCcw, FileText   
 } from 'lucide-react'
 
+function normalizeDriverPhone(phone: string): string {
+  // Remove all non-digit chars except leading +
+  const cleaned = phone.replace(/[^\d+]/g, '')
+  // If starts with 0, assume German number → replace with +49
+  if (cleaned.startsWith('0')) {
+    return '+49' + cleaned.slice(1)
+  }
+  // If no + prefix, add it
+  if (!cleaned.startsWith('+')) {
+    return '+' + cleaned
+  }
+  return cleaned
+}
+
 // This component handles the admin dashboard for managing drivers and job assignments
 // Used by both admin users and call center operators. It's a massive component I intend to break down to smaller parts in future.
 interface AdminPanelProps {
@@ -323,7 +337,7 @@ const processWorkingHours = (hoursInput: unknown): WorkingHours => {
     try {
       const driverPayload = {
         name: newDriverInfo.name,
-        phone: newDriverInfo.phone,
+        phone: normalizeDriverPhone(newDriverInfo.phone),
         latitude: parseFloat(newDriverInfo.latitude),
         longitude: parseFloat(newDriverInfo.longitude),
         description: newDriverInfo.description,
@@ -423,7 +437,7 @@ const processWorkingHours = (hoursInput: unknown): WorkingHours => {
     try {
       const updatePayload = {
         name: currentEditDriver.name,
-        phone: currentEditDriver.phone,
+        phone: normalizeDriverPhone(currentEditDriver.phone),
         latitude: currentEditDriver.latitude,
         longitude: currentEditDriver.longitude,
         description: currentEditDriver.description,
