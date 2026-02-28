@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { FileText } from 'lucide-react';
-
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // revalidate every hour
 
 async function getPosts() {
