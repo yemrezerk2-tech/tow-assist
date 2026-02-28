@@ -31,13 +31,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </Link>
 
       <article className="max-w-3xl mx-auto">
-        {post.featured_image && (
-          <img
-            src={post.featured_image}
-            alt={post.title}
-            className="w-full h-64 object-cover rounded-xl mb-8"
-          />
-        )}
+{post.featured_image && (
+  <div className="w-full max-h-96 bg-gray-100 rounded-xl mb-8 overflow-hidden flex items-center justify-center">
+    <img
+      src={post.featured_image}
+      alt={post.title}
+      className="max-h-full max-w-full object-contain"
+    />
+  </div>
+)}
 
         <h1 className="text-4xl font-black text-gray-900 mb-4">{post.title}</h1>
 

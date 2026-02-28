@@ -1826,19 +1826,65 @@ const displayWorkingHours = (workingHours: unknown): string => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bild-URL (optional)
-              </label>
-              <input
-                type="url"
-                value={editingPost?.featured_image || ''}
-                onChange={(e) => setEditingPost(prev => prev ? { ...prev, featured_image: e.target.value } : null)}
-                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Beitragsbild (optional)
+  </label>
+  <div className="flex items-center gap-4">
+    <input
+      type="file"
+      accept="image/*"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
+        alert('Uploading...');
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!res.ok) throw new Error('Upload failed');
+
+          const { url } = await res.json();
+          setEditingPost(prev => prev ? { ...prev, featured_image: url } : null);
+          alert('Upload erfolgreich!');
+        } catch (err) {
+          console.error(err);
+          alert('Upload fehlgeschlagen');
+        }
+      }}
+      className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30"
+    />
+    {editingPost?.featured_image && (
+      <div className="relative w-20 h-20 flex-shrink-0">
+        <img
+          src={editingPost.featured_image}
+          alt="Vorschau"
+          className="w-full h-full object-cover rounded-lg border-2 border-gray-200"
+        />
+        <button
+          type="button"
+          onClick={() => setEditingPost(prev => prev ? { ...prev, featured_image: '' } : null)}
+          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+          title="Bild entfernen"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    )}
+  </div>
+  {editingPost?.featured_image && (
+    <p className="text-xs text-gray-500 mt-2">
+      Aktuelles Bild: <a href={editingPost.featured_image} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Vorschau</a>
+    </p>
+  )}
+</div>
             <div className="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-xl">
               <input
                 type="checkbox"

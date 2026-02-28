@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { sanitizeObject } from '@/lib/sanitize';
+import { sanitizeInput } from '@/lib/sanitize';
 
 export async function GET(request: Request) {
   try {
@@ -24,23 +24,26 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const sanitized = sanitizeObject(data);
+    
 
-    // Generate slug from title if not provided
-    const slug = sanitized.slug || sanitized.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const title = sanitizeInput(data.title || '');
+    const slug = data.slug 
+      ? sanitizeInput(data.slug) 
+      : title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const excerpt = data.excerpt ? sanitizeInput(data.excerpt) : null;
+    const content = sanitizeInput(data.content || '');
+    const featured_image = data.featured_image || null; // No sanitization!
+    const published = !!data.published;
 
     const newPost = {
       id: `BLOG${Date.now()}`,
-      title: sanitized.title,
+      title,
       slug,
-      excerpt: sanitized.excerpt || null,
-      content: sanitized.content,
-      featured_image: sanitized.featured_image || null,
-      published: sanitized.published || false,
-      published_at: sanitized.published ? new Date().toISOString() : null,
+      excerpt,
+      content,
+      featured_image,
+      published,
+      published_at: published ? new Date().toISOString() : null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

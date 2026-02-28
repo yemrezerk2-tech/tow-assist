@@ -38,7 +38,7 @@ export default function BlogCarousel() {
   }
 
   if (posts.length === 0) {
-    return null; // Don't show anything if no posts
+    return null;
   }
 
   const nextSlide = () => {
@@ -60,11 +60,13 @@ export default function BlogCarousel() {
           className="block pro-card rounded-2xl p-6 hover-lift group max-w-2xl mx-auto"
         >
           {post.featured_image && (
-            <img
-              src={post.featured_image}
-              alt={post.title}
-              className="w-full h-48 object-cover rounded-xl mb-4"
-            />
+            <div className="w-full h-48 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+              <img
+                src={post.featured_image}
+                alt={post.title}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
           )}
           <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">
             {post.title}
@@ -103,11 +105,13 @@ export default function BlogCarousel() {
           className="block pro-card rounded-2xl p-6 hover-lift group"
         >
           {post.featured_image && (
-            <img
-              src={post.featured_image}
-              alt={post.title}
-              className="w-full h-48 object-cover rounded-xl mb-4"
-            />
+            <div className="w-full h-48 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+              <img
+                src={post.featured_image}
+                alt={post.title}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
           )}
           <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">
             {post.title}

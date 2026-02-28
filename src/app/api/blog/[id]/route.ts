@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { sanitizeObject } from '@/lib/sanitize';
+import { sanitizeInput } from '@/lib/sanitize';
 
 export async function GET(
   request: Request,
@@ -29,16 +29,25 @@ export async function PUT(
   try {
     const { id } = await params;
     const data = await request.json();
-    const sanitized = sanitizeObject(data);
+    
+    // Manually sanitize text fields only
+    const title = sanitizeInput(data.title || '');
+    const slug = data.slug 
+      ? sanitizeInput(data.slug) 
+      : title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const excerpt = data.excerpt ? sanitizeInput(data.excerpt) : null;
+    const content = sanitizeInput(data.content || '');
+    const featured_image = data.featured_image || null; 
+    const published = !!data.published;
 
     const updates = {
-      title: sanitized.title,
-      slug: sanitized.slug,
-      excerpt: sanitized.excerpt,
-      content: sanitized.content,
-      featured_image: sanitized.featured_image,
-      published: sanitized.published,
-      published_at: sanitized.published ? new Date().toISOString() : null,
+      title,
+      slug,
+      excerpt,
+      content,
+      featured_image,
+      published,
+      published_at: published ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
     };
 

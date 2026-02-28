@@ -32,12 +32,15 @@ export default async function BlogPage() {
           {posts.map(post => (
             <Link key={post.id} href={`/blog/${post.slug}`} className="pro-card rounded-2xl p-6 hover-lift group">
               {post.featured_image && (
-                <img
-                  src={post.featured_image}
-                  alt={post.title}
-                  className="w-full h-48 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300"
-                />
-              )}
+  <div className="w-full h-48 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+    <img
+      src={post.featured_image}
+      alt={post.title}
+      className="max-h-full max-w-full object-contain"
+    />
+  </div>
+)}
+             
               <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">
                 {post.title}
               </h2>
