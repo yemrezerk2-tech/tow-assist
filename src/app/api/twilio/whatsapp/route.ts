@@ -142,10 +142,18 @@ export async function POST(request: Request) {
     console.log('✅ Task completed, driver available')
   }
 
-  return new NextResponse(
-    `<Response>
-      <Message>Thanks. We received your answer.</Message>
-    </Response>`,
-    { headers: { 'Content-Type': 'text/xml' } }
-  )
+  const confirmationMessages: Record<string, string> = {
+  YES: '✅ You accepted the assignment. You are now marked as unavailable.',
+  NO: '❌ You rejected the assignment.',
+  COMPLETE: '🔄 Task marked as complete. You are now available again.'
+}
+
+const confirmation = confirmationMessages[answer] ?? `We received your reply: "${answer}"`
+
+return new NextResponse(
+  `<Response>
+    <Message>${confirmation}</Message>
+  </Response>`,
+  { headers: { 'Content-Type': 'text/xml' } }
+)
 }
