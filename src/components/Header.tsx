@@ -30,7 +30,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo / Brand */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 road-sign rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 md:w-10 md:h-10 road-sign rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
               <Car className="w-5 h-5 text-black" />
             </div>
             <span className="text-xl font-black text-gray-900 hidden sm:inline">
@@ -42,21 +42,24 @@ export default function Header() {
           <nav className="flex items-center gap-2 md:gap-4">
             <Link
               href="/partners"
-              className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              title={t('nav.partners')}
             >
               <Users className="w-4 h-4" />
               <span className="text-sm md:text-base font-medium">{t('nav.partners')}</span>
             </Link>
             <Link
               href="/contact"
-              className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+            title={t('nav.contact')}
             >
               <Mail className="w-4 h-4" />
               <span className="text-sm md:text-base font-medium">{t('nav.contact')}</span>
             </Link>
             <Link
               href="/blog"
-              className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+            title={t('nav.blog')}
             >
               <FileText className="w-4 h-4" />
               <span className="text-sm md:text-base font-medium">{t('nav.blog')}</span>
@@ -64,15 +67,18 @@ export default function Header() {
             {pathname === '/' && showAdminButton && (
               <Link
                 href="/admin/login"
-                className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+                className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
                 title="Admin Panel"
+              
               >
                 <Settings className="w-4 h-4" />
                 <span className="text-sm md:text-base font-medium hidden sm:inline">{t('nav.admin')}</span>
               </Link>
            
             )}
-            <LanguageSwitcher />
+            <div className="ml-1 md:ml-2">
+              <LanguageSwitcher />
+            </div>
           </nav>
         </div>
       </div>
