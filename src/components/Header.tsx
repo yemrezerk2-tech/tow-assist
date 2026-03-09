@@ -39,7 +39,7 @@ export default function Header() {
           </Link>
 
           {/* Navigation Links */}
-          <nav className="flex items-center gap-2 md:gap-4">
+          <nav className="flex items-center justify-end gap-3 sm:gap-4 md:gap-6">
             <Link
               href="/partners"
               className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
