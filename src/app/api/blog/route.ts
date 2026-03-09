@@ -25,14 +25,13 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     
-
     const title = sanitizeInput(data.title || '');
     const slug = data.slug 
       ? sanitizeInput(data.slug) 
       : title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const excerpt = data.excerpt ? sanitizeInput(data.excerpt) : null;
-    const content = sanitizeInput(data.content || '');
-    const featured_image = data.featured_image || null; // No sanitization!
+    const content = data.content || ''; 
+    const featured_image = data.featured_image || null;
     const published = !!data.published;
 
     const newPost = {
@@ -40,13 +39,15 @@ export async function POST(request: Request) {
       title,
       slug,
       excerpt,
-      content,
+      content, 
       featured_image,
       published,
       published_at: published ? new Date().toISOString() : null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+
+    console.log('Saving post with content:', content.substring(0, 100) + '...'); // Debug log
 
     const { data: post, error } = await supabase
       .from('blog_posts')

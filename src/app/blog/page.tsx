@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FileText } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // revalidate every hour
+import { cookies } from 'next/headers';
 
 async function getPosts() {
   const { data } = await supabase
@@ -12,20 +13,41 @@ async function getPosts() {
     .order('published_at', { ascending: false });
   return data || [];
 }
-
+const getTranslations = async (lang: string) => {
+  const translations = {
+    de: {
+      title: "Blog",
+      no_posts_title: "Noch keine Blog Beiträge",
+      no_posts_desc: "Schau bald wieder vorbei!",
+      read_more: "Weiterlesen",
+      published_on: "Veröffentlicht am"
+    },
+    en: {
+      title: "Blog",
+      no_posts_title: "No blog posts yet",
+      no_posts_desc: "Check back soon!",
+      read_more: "Read more",
+      published_on: "Published on"
+    }
+  };
+  return translations[lang as keyof typeof translations] || translations.de;
+};
 export default async function BlogPage() {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('language')?.value || 'de';
+  const t = await getTranslations(lang);
   const posts = await getPosts();
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-black text-gray-900 mb-8">Blog</h1>
+      <h1 className="text-4xl font-black text-gray-900 mb-8">{t.title}</h1>
       {posts.length === 0 ? (
         <div className="text-center pro-card rounded-2xl p-12 border-4 border-gray-400">
           <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <FileText className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Noch keine Blog Beiträge</h3>
-          <p className="text-gray-600">Schau bald wieder vorbei!</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{t.no_posts_title}</h3>
+          <p className="text-gray-600">{t.no_posts_desc}</p>
         </div>
       ) : (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -46,7 +68,7 @@ export default async function BlogPage() {
               </h2>
               <p className="text-gray-600 mb-4">{post.excerpt}</p>
               <div className="text-sm text-yellow-600">
-                {new Date(post.published_at).toLocaleDateString('de-DE', {
+                {new Date(post.published_at).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'

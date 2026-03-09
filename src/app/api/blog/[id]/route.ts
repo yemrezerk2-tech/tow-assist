@@ -30,21 +30,20 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
     
-    // Manually sanitize text fields only
     const title = sanitizeInput(data.title || '');
     const slug = data.slug 
       ? sanitizeInput(data.slug) 
       : title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const excerpt = data.excerpt ? sanitizeInput(data.excerpt) : null;
-    const content = sanitizeInput(data.content || '');
-    const featured_image = data.featured_image || null; 
+    const content = data.content || ''; 
+    const featured_image = data.featured_image || null;
     const published = !!data.published;
 
     const updates = {
       title,
       slug,
       excerpt,
-      content,
+      content, 
       featured_image,
       published,
       published_at: published ? new Date().toISOString() : null,

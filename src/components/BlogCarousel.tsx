@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
-
+import { useLanguage } from '@/context/LanguageContext';
 interface BlogPost {
   id: string;
   title: string;
@@ -14,6 +14,7 @@ interface BlogPost {
 }
 
 export default function BlogCarousel() {
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ export default function BlogCarousel() {
     const post = posts[0];
     return (
       <div className="mt-16">
-        <h2 className="text-3xl font-black text-gray-900 mb-8 text-center">Neueste vom Blog</h2>
+        <h2 className="text-3xl font-black text-gray-900 mb-8 text-center">{t('blog.latest')}</h2>
         <Link
           href={`/blog/${post.slug}`}
           className="block pro-card rounded-2xl p-6 hover-lift group max-w-2xl mx-auto"
@@ -85,7 +86,7 @@ export default function BlogCarousel() {
 
   return (
     <div className="mt-16">
-      <h2 className="text-3xl font-black text-gray-900 mb-8 text-center">Neueste vom Blog</h2>
+      <h2 className="text-3xl font-black text-gray-900 mb-8 text-center">{t('blog.latest')}</h2>
       <div className="relative max-w-2xl mx-auto">
         <button
           onClick={prevSlide}

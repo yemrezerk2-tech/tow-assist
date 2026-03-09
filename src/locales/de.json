@@ -1,0 +1,253 @@
+{
+  "common": {
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "confirm": "Bestätigen",
+    "loading": "Lädt...",
+    "please_wait": "Bitte warten...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "or": "oder wählen Sie eine Option",
+    "click": "Klicken",
+    "drag": "Ziehen",
+    "zoom": "Zoom"
+  },
+  "nav": {
+    "home": "Startseite",
+    "partners": "Partner werden",
+    "contact": "Kontakt",
+    "blog": "Blog",
+    "admin": "Admin"
+  },
+  "home": {
+    "badge": "Premium Pannenhilfe/Abschleppdienst",
+    "title": "Pannenhilfe & Abschleppdienst",
+    "title_part1": "Pannenhilfe &",
+    "title_part2": "Abschleppdienst",
+    "subtitle": "24/7 Ganz Deutschland • Blitzschnell • Transparent • Professionell",
+    "cta": "JETZT HILFE ANFORDERN",
+    "steps": {
+      "1": { "title": "Standort eingeben", "desc": "Wo benötigen Sie Hilfe?" },
+      "2": { "title": "Fahrer auswählen", "desc": "Wählen Sie aus verfügbaren Partnern" },
+      "3": { "title": "Hilfe-ID erhalten", "desc": "Notieren Sie sich Ihre persönliche ID" },
+      "4": { "title": "Hotline anrufen", "desc": "Geben Sie die ID durch - Hilfe kommt!" }
+    },
+    "stats": {
+      "eta": "15-30min",
+      "eta_desc": "Überall in Deutschland",
+      "rating": "4.9/5",
+      "rating_desc": "Kundenbewertung",
+      "partners": "{{count}}+",
+      "partners_desc": "Aktive Partner"
+    },
+    "features": {
+      "speed": {
+        "title": "Blitzschnelle Hilfe",
+        "desc": "Unsere Partner sind in 15-30 Minuten bei Ihnen - garantiert in ganz Deutschland"
+      },
+      "certified": {
+        "title": "Zertifizierte Profis",
+        "desc": "Alle Partner sind geprüft, zertifiziert und versichert für maximale Sicherheit"
+      },
+      "tech": {
+        "title": "Moderne Technik",
+        "desc": "Echtzeit-Tracking, digitale Abwicklung und modernste Abschlepptechnik"
+      }
+    },
+    "why_choose_us": "Warum uns wählen?",
+    "premium_service": "Premium Service für anspruchsvolle Kunden in ganz Deutschland"
+  },
+  "contact": {
+  "subtitle": "Wir sind für Sie da. Kontaktieren Sie uns bei Fragen oder Anliegen.",
+  "info_title": "Kontaktinformation",
+  "phone": "Telefon",
+  "phone_number": "+49 40 12345678",
+  "phone_hours": "24/7 erreichbar",
+  "email": "E-Mail",
+  "email_address": "info@roadhelp.de",
+  "email_response": "Antwort innerhalb 24h",
+  "hours": "Öffnungszeiten",
+  "hours_24_7": "24 Stunden, 7 Tage die Woche",
+  "emergency_available": "Notdienst immer verfügbar",
+  "location": "Standort",
+  "service_area": "Ganz Deutschland",
+  "nationwide": "Bundesweiter Service",
+  "faq_title": "Häufige Fragen",
+  "faq_speed_q": "Wie schnell kommt Hilfe?",
+  "faq_speed_a": "In der Regel innerhalb von 15-30 Minuten.",
+  "faq_free_q": "Kostenlose Anfrage?",
+  "faq_free_a": "Ja, die Anfrage ist kostenlos und unverbindlich.",
+  "faq_24_7_q": "24/7 verfügbar?",
+  "faq_24_7_a": "Ja, rund um die Uhr an 365 Tagen im Jahr.",
+      "form": {  
+      "error": "Es gab ein Problem beim Senden des Formulars. Bitte versuchen Sie es später erneut.",
+      "success_title": "Nachricht gesendet!",
+      "success_message": "Vielen Dank für Ihre Nachricht. Wir werden uns so schnell wie möglich bei Ihnen melden.",
+      "new_message": "Neue Nachricht senden",
+      "title": "Kontaktieren Sie uns",
+      "subtitle": "Haben Sie Fragen? Wir helfen Ihnen gerne weiter.",
+      "name_label": "Name",
+      "name_placeholder": "Ihr Name",
+      "phone_label": "Telefon",
+      "phone_placeholder": "+49 123 456789",
+      "email_label": "E-Mail Adresse",
+      "email_placeholder": "ihre@email.de",
+      "message_label": "Ihre Nachricht",
+      "message_placeholder": "Wie können wir Ihnen helfen?",
+      "submit": "Nachricht senden",
+      "response_note": "Wir antworten normalerweise innerhalb von 24 Stunden."
+    }
+},
+"partners": {
+  "title_prefix": "Werden Sie",
+  "title_highlight": "Partner",
+  "subtitle": "Bieten Sie Ihre Abschlepp- und Pannenhilfe-Dienste über unser Netzwerk an und erreichen Sie mehr Kunden",
+  "benefits": {
+    "more_jobs": {
+      "title": "Mehr Aufträge",
+      "desc": "Erhalten Sie regelmäßige Einsätze über unser Kunden-Netzwerk"
+    },
+    "certified": {
+      "title": "Geprüfte Partner",
+      "desc": "Werben Sie mit unserer Qualitätsgarantie und Kundenvertrauen"
+    },
+    "support": {
+      "title": "24/7 Support",
+      "desc": "Unser Team unterstützt Sie bei der Auftragsabwicklung"
+    }
+  },
+  "faq_title": "Häufige Fragen",
+  "faq_commission_q": "Wie funktioniert die Provision?",
+  "faq_commission_a": "Wir berechnen eine faire Provision nur bei erfolgreich vermittelten Einsätzen.",
+  "faq_requirements_q": "Welche Voraussetzungen gibt es?",
+  "faq_requirements_a": "Gewerbeanmeldung, Versicherung und zuverlässige Fahrzeuge.",
+  "form": {
+    "error": "Es gab ein Problem beim Senden des Formulars. Bitte versuchen Sie es später erneut.",
+    "success_title": "Vielen Dank!",
+    "success_message": "Ihre Partnerschaftsanfrage wurde erfolgreich übermittelt. Wir werden uns innerhalb von 24 Stunden bei Ihnen melden.",
+    "new_request": "Neue Anfrage senden",
+    "title": "Partner werden",
+    "subtitle": "Werden Sie Teil unseres Netzwerks und bieten Sie Ihre Abschlepp- und Pannenhilfe-Dienste an",
+    "company_section": "Unternehmensinformation",
+    "company_label": "Firmenname",
+    "company_placeholder": "Ihr Firmenname",
+    "contact_label": "Ansprechpartner",
+    "contact_placeholder": "Vor- und Nachname",
+    "email_label": "E-Mail Adresse",
+    "email_placeholder": "ihre@email.de",
+    "service_section": "Service Informationen",
+    "phone_label": "Telefonnummer",
+    "phone_placeholder": "+49 123 456789",
+    "city_label": "Stadt",
+    "city_placeholder": "Ihre Stadt",
+    "service_type_label": "Service-Typ",
+    "service_towing": "Abschleppdienst",
+    "service_repair": "Pannenhilfe",
+    "service_both": "Beides",
+    "message_label": "Zusätzliche Nachricht (optional)",
+    "message_placeholder": "Erzählen Sie uns mehr über Ihr Unternehmen oder spezielle Dienstleistungen...",
+    "submit": "Anfrage senden",
+    "response_note": "Wir melden uns innerhalb von 24 Stunden bei Ihnen. Ihre Daten werden vertraulich behandelt."
+  }
+},
+  "location": {
+    "title": "Wo benötigen Sie Hilfe?",
+    "subtitle": "Teilen Sie uns Ihren Standort mit für die schnellste Hilfe",
+    "placeholder": "Straße, Adresse, Gebäude oder Ort eingeben...",
+    "search": "Suchen",
+    "useCurrent": "Aktuellen Standort nutzen",
+    "useCurrent_desc": "GPS-Position automatisch ermitteln",
+    "mapSelect": "Interaktive Karte",
+    "mapSelect_desc": "Position auf der Karte wählen",
+    "loading_maps": "Lade Google Maps Dienste...",
+    "finding": "Ermittle Ihren Standort",
+    "searching": "Suche Adresse",
+    "enter": "eingeben",
+    "at": "Standort",
+    "intermediary_notice": "Wir sind eine Vermittlungsplattform. Sie wählen einen Fahrer aus, erhalten eine Hilfe-ID und rufen unser Callcenter an. Wir verbinden Sie dann direkt mit dem ausgewählten Fahrer.",
+    "map_picker": {
+      "loading_title": "Karte wird vorbereitet...",
+      "loading_text": "Google Maps wird geladen, bitte warten...",
+      "title": "Standort auf der Karte wählen",
+      "subtitle": "Klicken Sie auf Ihren gewünschten Standort",
+      "instructions_title": "💡 Bedienung der Karte",
+      "click": "Marker an dieser Stelle platzieren",
+      "drag": "Marker zur gewünschten Position bewegen",
+      "zoom": "Mausrad oder + / - Buttons verwenden",
+      "marker_placed": "✓ Standort markiert! Sie können jetzt fortfahren oder die Position noch anpassen.",
+      "confirm_button": "✓ Diesen Standort verwenden",
+      "confirm_button_disabled": "Zuerst Standort auf Karte wählen",
+      "remove_button": "🗑️ Marker entfernen"
+    }
+  },
+  "driver": {
+    "title": "Verfügbare Fahrer",
+    "found": "{{count}} Fahrer in Ihrer Nähe gefunden",
+    "select": "Auswählen",
+    "select_action": "auswählen",
+    "eta": "Ankunftszeit",
+    "eta_minutes": "ETA: {{minutes}} Minuten",
+    "rating": "Bewertung",
+    "vehicle": "Fahrzeug",
+    "service_type": "Service-Typ",
+    "price_from": "Ab {{price}}€",
+    "service_areas": "Servicegebiete",
+    "features": "Leistungen",
+    "available_now": "Jetzt verfügbar",
+    "no_drivers": "Keine Fahrer verfügbar",
+    "no_drivers_desc": "Momentan sind keine Fahrer in Ihrer Nähe verfügbar. Bitte versuchen Sie es später erneut oder wählen Sie einen anderen Standort.",
+    "other_location": "Anderen Standort wählen",
+    "security_title": "Sicher und geschützt",
+    "security_desc": "Alle unsere Fahrer sind geprüft, versichert und zertifiziert. Ihre Daten werden verschlüsselt übertragen und nicht an Dritte weitergegeben.",
+    "security_badges": "• Geprüfte Fachbetriebe • 24/7 Verfügbarkeit • Festpreis-Garantie",
+    "how_it_works_title": "So erhalten Sie Hilfe:",
+    "step1_title": "Fahrer auswählen",
+    "step1_desc": "Wählen Sie einen verfügbaren Fahrer",
+    "step2_title": "Hilfe-ID erhalten",
+    "step2_desc": "Notieren Sie sich Ihre persönliche ID",
+    "step3_title": "Hotline anrufen",
+    "step3_desc": "Rufen Sie an und nennen Sie Ihre ID",
+    "step4_title": "Hilfe erhalten",
+    "step4_desc": "Der Fahrer kommt zu Ihrem Standort"
+  },
+  "assignment": {
+    "title": "Fahrer zugewiesen!",
+    "provide_id": "ID bereitstellen",
+    "help_id": "Ihre Hilfe-ID",
+    "help_id_desc": "Geben Sie diese ID am Telefon durch",
+    "help_id_note": "Notieren Sie sich diese ID für Ihren Anruf",
+    "call_action": "WICHTIG: Rufen Sie jetzt an und nennen Sie Ihre Hilfe-ID",
+    "call_button": "JETZT ANRUFEN: {{phone}}",
+    "how_it_works": "So funktioniert es:",
+    "step1": "Rufen Sie die Nummer oben an",
+    "step2": "Nennen Sie dem Mitarbeiter Ihre Hilfe-ID: {{id}}",
+    "step3": "Der Fahrer wird zu Ihnen geschickt",
+    "new_request": "Neue Hilfe anfordern"
+  },
+  "blog": {
+    "latest": "Neueste vom Blog",
+    "no_posts": "Noch keine Blog Beiträge",
+    "check_back": "Schau bald wieder vorbei!"
+  },
+  
+  "footer": {
+    "copyright": "© {{year}} Road Help GmbH. Alle Rechte vorbehalten.",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
+  },
+  "features": {
+    "smart_search": {
+      "title": "Intelligente Suche",
+      "desc": "Automatische Adressvorschläge"
+    },
+    "precise_location": {
+      "title": "Präzise Ortung",
+      "desc": "GPS-basierte Standortfindung"
+    },
+    "visual_selection": {
+      "title": "Visuelle Auswahl",
+      "desc": "Punkt-und-Klick Auswahl"
+    }
+  }
+}

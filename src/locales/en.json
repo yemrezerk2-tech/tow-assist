@@ -1,0 +1,252 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "please_wait": "Please wait...",
+    "error": "Error",
+    "success": "Success",
+    "or": "Or  choose an option",
+    "click": "Click",
+    "drag": "Drag",
+    "zoom": "Zoom"
+  },
+  "nav": {
+    "home": "Home",
+    "partners": "Become a Partner",
+    "contact": "Contact",
+    "blog": "Blog",
+    "admin": "Admin"
+  },
+  "home": {
+    "badge": "Premium Roadside Assistance & Towing",
+    "title": "Roadside Assistance & Towing",
+    "title_part1": "Roadside Assistance &",
+    "title_part2": "Towing",
+    "subtitle": "24/7 Germany-wide • Fast • Transparent • Professional",
+    "cta": "REQUEST HELP NOW",
+    "steps": {
+      "1": { "title": "Enter Location", "desc": "Where do you need help?" },
+      "2": { "title": "Choose Driver", "desc": "Select from available partners" },
+      "3": { "title": "Get Help ID", "desc": "Note your personal ID" },
+      "4": { "title": "Call Hotline", "desc": "Provide ID - help is on the way!" }
+    },
+    "stats": {
+      "eta": "15-30min",
+      "eta_desc": "All over Germany",
+      "rating": "4.9/5",
+      "rating_desc": "Customer rating",
+      "partners": "{{count}}+",
+      "partners_desc": "Active Partners"
+    },
+    "features": {
+      "speed": {
+        "title": "Lightning Fast Help",
+        "desc": "Our partners arrive in 15-30 minutes - guaranteed across Germany"
+      },
+      "certified": {
+        "title": "Certified Professionals",
+        "desc": "All partners are verified, certified and insured for maximum safety"
+      },
+      "tech": {
+        "title": "Modern Technology",
+        "desc": "Real-time tracking, digital processing and state-of-the-art equipment"
+      }
+    },
+    "why_choose_us": "Why choose us?",
+    "premium_service": "Premium service for discerning customers throughout Germany"
+  },
+  "location": {
+    "title": "Where do you need help?",
+    "subtitle": "Share your location for the fastest assistance",
+    "placeholder": "Enter street, address, building or location...",
+    "search": "Search",
+    "useCurrent": "Use current location",
+    "useCurrent_desc": "Auto-detect GPS position",
+    "mapSelect": "Interactive Map",
+    "mapSelect_desc": "Choose position on map",
+    "loading_maps": "Loading Google Maps...",
+    "finding": "Finding your location",
+    "searching": "Searching address",
+    "enter": "Please Input",
+    "at": "Location",
+    "intermediary_notice": "We are a platform connecting you with drivers. You select a driver, receive a Help ID, and call our call center. We then connect you directly with your chosen driver.",
+    "map_picker": {
+      "loading_title": "Preparing map...",
+      "loading_text": "Loading Google Maps, please wait...",
+      "title": "Choose location on map",
+      "subtitle": "Click on your desired location",
+      "instructions_title": "💡 How to use the map",
+      "click": "Place marker at this location",
+      "drag": "Drag marker to adjust position",
+      "zoom": "Use mouse wheel or +/- buttons to zoom",
+      "marker_placed": "✓ Location marked! You can now continue or adjust the position.",
+      "confirm_button": "✓ Use this location",
+      "confirm_button_disabled": "First choose a location on the map",
+      "remove_button": "🗑️ Remove marker"
+    }
+  },
+  "partners": {
+  "title_prefix": "Become a",
+  "title_highlight": "Partner",
+  "subtitle": "Offer your towing and roadside assistance services through our network and reach more customers",
+  "benefits": {
+    "more_jobs": {
+      "title": "More Jobs",
+      "desc": "Receive regular assignments through our customer network"
+    },
+    "certified": {
+      "title": "Certified Partners",
+      "desc": "Benefit from our quality guarantee and customer trust"
+    },
+    "support": {
+      "title": "24/7 Support",
+      "desc": "Our team supports you with order processing"
+    }
+  },
+  "faq_title": "Frequently Asked Questions",
+  "faq_commission_q": "How does the commission work?",
+  "faq_commission_a": "We charge a fair commission only on successfully mediated assignments.",
+  "faq_requirements_q": "What are the requirements?",
+  "faq_requirements_a": "Business registration, insurance, and reliable vehicles.",
+  "form": {
+    "error": "There was a problem sending the form. Please try again later.",
+    "success_title": "Thank you!",
+    "success_message": "Your partnership request has been successfully submitted. We will contact you within 24 hours.",
+    "new_request": "Send new request",
+    "title": "Become a Partner",
+    "subtitle": "Join our network and offer your towing and roadside assistance services",
+    "company_section": "Company Information",
+    "company_label": "Company Name",
+    "company_placeholder": "Your company name",
+    "contact_label": "Contact Person",
+    "contact_placeholder": "First and last name",
+    "email_label": "Email Address",
+    "email_placeholder": "your@email.com",
+    "service_section": "Service Information",
+    "phone_label": "Phone Number",
+    "phone_placeholder": "+49 123 456789",
+    "city_label": "City",
+    "city_placeholder": "Your city",
+    "service_type_label": "Service Type",
+    "service_towing": "Towing Service",
+    "service_repair": "Roadside Assistance",
+    "service_both": "Both",
+    "message_label": "Additional message (optional)",
+    "message_placeholder": "Tell us more about your company or special services...",
+    "submit": "Send request",
+    "response_note": "We will respond within 24 hours. Your data will be treated confidentially."
+  }
+},
+  "contact": {
+  "subtitle": "We're here for you. Contact us with any questions or concerns.",
+  "info_title": "Contact Information",
+  "phone": "Phone",
+  "phone_number": "+49 40 12345678",
+  "phone_hours": "Available 24/7",
+  "email": "Email",
+  "email_address": "info@roadhelp.de",
+  "email_response": "Reply within 24h",
+  "hours": "Business Hours",
+  "hours_24_7": "24 hours, 7 days a week",
+  "emergency_available": "Emergency service always available",
+  "location": "Location",
+  "service_area": "All of Germany",
+  "nationwide": "Nationwide service",
+  "faq_title": "Frequently Asked Questions",
+  "faq_speed_q": "How fast does help arrive?",
+  "faq_speed_a": "Usually within 15-30 minutes.",
+  "faq_free_q": "Is the request free?",
+  "faq_free_a": "Yes, the request is free and non-binding.",
+  "faq_24_7_q": "Available 24/7?",
+  "faq_24_7_a": "Yes, around the clock, 365 days a year.",
+    "form": {
+      "error": "There was a problem sending the form. Please try again later.",
+      "success_title": "Message sent!",
+      "success_message": "Thank you for your message. We'll get back to you as soon as possible.",
+      "new_message": "Send new message",
+      "title": "Contact us",
+      "subtitle": "Have questions? We're happy to help.",
+      "name_label": "Name",
+      "name_placeholder": "Your name",
+      "phone_label": "Phone",
+      "phone_placeholder": "+49 123 456789",
+      "email_label": "Email address",
+      "email_placeholder": "your@email.com",
+      "message_label": "Your message",
+      "message_placeholder": "How can we help you?",
+      "submit": "Send message",
+      "response_note": "We usually reply within 24 hours."
+    }
+  },
+  "driver": {
+    "title": "Select From",
+    "found": "{{count}} drivers found near you",
+    "select": "Select",
+    "select_action": "Available Drivers",
+    "eta": "ETA",
+    "eta_minutes": "ETA: {{minutes}} min",
+    "rating": "Rating",
+    "vehicle": "Vehicle",
+    "service_type": "Service Type",
+    "price_from": "From {{price}}€",
+    "service_areas": "Service Areas",
+    "features": "Features",
+    "available_now": "Available now",
+    "no_drivers": "No drivers available",
+    "no_drivers_desc": "Currently no drivers available near you. Please try again later or choose a different location.",
+    "other_location": "Choose another location",
+    "security_title": "Secure & Protected",
+    "security_desc": "All our drivers are verified, insured and certified. Your data is encrypted and never shared with third parties.",
+    "security_badges": "• Verified professionals • 24/7 availability • Fixed price guarantee",
+    "how_it_works_title": "How to get help:",
+    "step1_title": "Select driver",
+    "step1_desc": "Choose an available driver",
+    "step2_title": "Get Help ID",
+    "step2_desc": "Note your personal ID",
+    "step3_title": "Call hotline",
+    "step3_desc": "Call and provide your ID",
+    "step4_title": "Get help",
+    "step4_desc": "The driver comes to your location"
+  },
+  "assignment": {
+    "title": "Driver assigned!",
+    "provide_id": "provide ID",
+    "help_id": "Your Help ID",
+    "help_id_desc": "Provide this ID when you call",
+    "help_id_note": "Note down this ID for your call",
+    "call_action": "IMPORTANT: Call now and provide your Help ID",
+    "call_button": "CALL NOW: {{phone}}",
+    "how_it_works": "How it works:",
+    "step1": "Call the number above",
+    "step2": "Tell the operator your Help ID: {{id}}",
+    "step3": "The driver will be dispatched to you",
+    "new_request": "Request new help"
+  },
+  "blog": {
+    "latest": "Latest from the Blog",
+    "no_posts": "No blog posts yet",
+    "check_back": "Check back soon!"
+  },
+  "footer": {
+    "copyright": "© {{year}} Road Help GmbH. All rights reserved.",
+    "imprint": "Imprint",
+    "privacy": "Privacy Policy"
+  },
+  "features": {
+    "smart_search": {
+      "title": "Smart Search",
+      "desc": "Automatic address suggestions"
+    },
+    "precise_location": {
+      "title": "Precise Location",
+      "desc": "GPS-based positioning"
+    },
+    "visual_selection": {
+      "title": "Visual Selection",
+      "desc": "Point-and-click selection"
+    }
+  }
+}

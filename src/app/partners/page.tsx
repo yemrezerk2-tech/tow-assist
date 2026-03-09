@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import PartnershipForm from '@/components/PartnershipForm'
 import { ArrowLeft, Shield, TrendingUp, Clock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-
+import { useLanguage } from '@/context/LanguageContext'
 export default function PartnersPage() {
   const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
-
+  const { t } = useLanguage()
   useEffect(() => {
     setIsVisible(true)
   }, [])
@@ -30,42 +30,43 @@ export default function PartnersPage() {
             </button>
             <div className="flex-1">
               <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-4">
-                Werden Sie <span className="text-yellow-600">Partner</span>
+                {t('partners.title_prefix')} <span className="text-yellow-600">{t('partners.title_highlight')}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl">
-                Bieten Sie Ihre Abschlepp- und Pannenhilfe-Dienste über unser Netzwerk an und erreichen Sie mehr Kunden
+                {t('partners.subtitle')}
               </p>
             </div>
           </div>
 
           {/* Benefits Section */}
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {[
-              {
-                icon: TrendingUp,
-                title: "Mehr Aufträge",
-                description: "Erhalten Sie regelmäßige Einsätze über unser Kunden-Netzwerk"
-              },
-              {
-                icon: Shield,
-                title: "Geprüfte Partner",
-                description: "Werben Sie mit unserer Qualitätsgarantie und Kundenvertrauen"
-              },
-              {
-                icon: Clock,
-                title: "24/7 Support",
-                description: "Unser Team unterstützt Sie bei der Auftragsabwicklung"
-              }
-            ].map((benefit, index) => (
-              <div key={index} className="pro-card rounded-2xl p-6 text-center hover-lift">
-                <div className="w-12 h-12 road-sign rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <benefit.icon className="w-6 h-6 text-black" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
-              </div>
-            ))}
+    <div className="grid md:grid-cols-3 gap-8 mb-12">
+      {[
+        {
+          icon: TrendingUp,
+          key: 'more_jobs'
+        },
+        {
+          icon: Shield,
+          key: 'certified'
+        },
+        {
+          icon: Clock,
+          key: 'support'
+        }
+      ].map((benefit, index) => (
+        <div key={index} className="pro-card rounded-2xl p-6 text-center hover-lift">
+          <div className="w-12 h-12 road-sign rounded-xl flex items-center justify-center mx-auto mb-4">
+            <benefit.icon className="w-6 h-6 text-black" />
           </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {t(`partners.benefits.${benefit.key}.title`)}
+          </h3>
+          <p className="text-gray-600">
+            {t(`partners.benefits.${benefit.key}.desc`)}
+          </p>
+        </div>
+      ))}
+    </div>
 
           {/* Partnership Form */}
           <PartnershipForm />
@@ -73,15 +74,15 @@ export default function PartnersPage() {
           {/* Additional Info */}
           <div className="mt-12 pro-card rounded-2xl p-8 border-2 border-yellow-500 bg-yellow-50">
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Häufige Fragen</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('partners.faq_title')}</h3>
               <div className="grid md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Wie funktioniert die Provision?</h4>
-                  <p className="text-gray-600 text-sm">Wir berechnen eine faire Provision nur bei erfolgreich vermittelten Einsätzen.</p>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('partners.faq_commission_q')}</h4>
+                  <p className="text-gray-600 text-sm">{t('partners.faq_commission_a')}</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Welche Voraussetzungen gibt es?</h4>
-                  <p className="text-gray-600 text-sm">Gewerbeanmeldung, Versicherung und zuverlässige Fahrzeuge.</p>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('partners.faq_requirements_q')}</h4>
+                  <p className="text-gray-600 text-sm">{t('partners.faq_requirements_a')}</p>
                 </div>
               </div>
             </div>

@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Users, Mail, FileText, Settings, Car } from 'lucide-react';
 import { useState, useEffect } from 'react';
-
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 export default function Header() {
   const pathname = usePathname();
   const [showAdminButton, setShowAdminButton] = useState(false);
-
+  const { t } = useLanguage();  
   useEffect(() => {
     if (pathname === '/') {
       const timer = setTimeout(() => setShowAdminButton(true), 1000);
@@ -44,21 +45,21 @@ export default function Header() {
               className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
             >
               <Users className="w-4 h-4" />
-              <span className="text-sm md:text-base font-medium">Partner</span>
+              <span className="text-sm md:text-base font-medium">{t('nav.partners')}</span>
             </Link>
             <Link
               href="/contact"
               className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
             >
               <Mail className="w-4 h-4" />
-              <span className="text-sm md:text-base font-medium">Kontakt</span>
+              <span className="text-sm md:text-base font-medium">{t('nav.contact')}</span>
             </Link>
             <Link
               href="/blog"
               className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
             >
               <FileText className="w-4 h-4" />
-              <span className="text-sm md:text-base font-medium">Blog</span>
+              <span className="text-sm md:text-base font-medium">{t('nav.blog')}</span>
             </Link>
             {pathname === '/' && showAdminButton && (
               <Link
@@ -67,9 +68,11 @@ export default function Header() {
                 title="Admin Panel"
               >
                 <Settings className="w-4 h-4" />
-                <span className="text-sm md:text-base font-medium hidden sm:inline">Admin</span>
+                <span className="text-sm md:text-base font-medium hidden sm:inline">{t('nav.admin')}</span>
               </Link>
+           
             )}
+            <LanguageSwitcher />
           </nav>
         </div>
       </div>

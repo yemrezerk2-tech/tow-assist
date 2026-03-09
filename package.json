@@ -12,6 +12,10 @@
   "dependencies": {
     "@googlemaps/react-wrapper": "^1.2.0",
     "@supabase/supabase-js": "^2.89.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tiptap/extension-placeholder": "^3.20.1",
+    "@tiptap/react": "^3.20.1",
+    "@tiptap/starter-kit": "^3.20.1",
     "better-sqlite3": "^12.4.1",
     "dotenv": "^17.2.3",
     "lucide-react": "^0.546.0",

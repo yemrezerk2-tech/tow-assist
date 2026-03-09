@@ -8,10 +8,12 @@ import { Driver, Location } from '@/types'
 import { useRouter } from 'next/navigation'
 import { findClosestDrivers } from '@/lib/geoUtils'
 import BlogCarousel from '@/components/BlogCarousel';
-
+import { useLanguage } from '@/context/LanguageContext'
+import LandingCarousel from '@/components/LandingCarousel';
 type AppState = 'welcome' | 'location-input' | 'driver-selection' | 'assignment' | 'confirmation'
 
 export default function Home() {
+  const { t } = useLanguage()
   const [appState, setAppState] = useState<AppState>('welcome')
   const [isVisible, setIsVisible] = useState(false)
   const [userLocation, setUserLocation] = useState<Location | null>(null)
@@ -149,20 +151,18 @@ export default function Home() {
         return (
           <div className="space-y-8 animate-slide-up">
             {/* Process explanation cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-8">
-              {[
-                { step: 1, title: "Standort eingeben", desc: "Wo benötigen Sie Hilfe?", icon: MapPin },
-                { step: 2, title: "Fahrer auswählen", desc: "Wählen Sie aus verfügbaren Partnern", icon: Car },
-                { step: 3, title: "Hilfe-ID erhalten", desc: "Notieren Sie sich Ihre persönliche ID", icon: Shield },
-                { step: 4, title: "Hotline anrufen", desc: "Geben Sie die ID durch - Hilfe kommt!", icon: Phone }
-              ].map((processItem) => (
-                <div key={processItem.step} className="text-center group">
+                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-8">
+              {[1, 2, 3, 4].map((step) => (
+                <div key={step} className="text-center group">
                   <div className="w-16 h-16 road-sign rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <processItem.icon className="w-8 h-8 text-black" />
+                    {step === 1 && <MapPin className="w-8 h-8 text-black" />}
+                    {step === 2 && <Car className="w-8 h-8 text-black" />}
+                    {step === 3 && <Shield className="w-8 h-8 text-black" />}
+                    {step === 4 && <Phone className="w-8 h-8 text-black" />}
                   </div>
-                  <div className="text-2xl font-black text-yellow-600 mb-2">{processItem.step}</div>
-                  <h3 className="font-bold text-gray-900 mb-2">{processItem.title}</h3>
-                  <p className="text-gray-600 text-sm">{processItem.desc}</p>
+                  <div className="text-2xl font-black text-yellow-600 mb-2">{step}</div>
+                  <h3 className="font-bold text-gray-900 mb-2">{t(`home.steps.${step}.title`)}</h3>
+                  <p className="text-gray-600 text-sm">{t(`home.steps.${step}.desc`)}</p>
                 </div>
               ))}
             </div>
@@ -176,36 +176,36 @@ export default function Home() {
                 <div className="absolute inset-0 rounded-xl bg-black opacity-5 group-hover:opacity-10 transition-opacity"></div>
                 <span className="relative flex items-center justify-center text-lg">
                   <MapPin className="w-6 h-6 mr-3" />
-                  JETZT HILFE ANFORDERN 
+                  {t('home.cta')}
                   <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </span>
               </button>
             </div>
             
-            {/* Service statistics display */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div className="pro-card rounded-xl p-4 hover-lift">
                 <div className="flex items-center justify-center gap-2 text-yellow-600 mb-2">
                   <Clock className="w-5 h-5" />
-                  <span className="font-bold text-lg">15-30min</span>
+                  <span className="font-bold text-lg">{t('home.stats.eta')}</span> 
                 </div>
-                <p className="text-gray-600 text-sm text-center">Überall in Deutschland</p>
+                <p className="text-gray-600 text-sm text-center">{t('home.stats.eta_desc')}</p> 
               </div>
               
               <div className="pro-card rounded-xl p-4 hover-lift">
                 <div className="flex items-center justify-center gap-2 text-yellow-600 mb-2">
                   <Star className="w-5 h-5" />
-                  <span className="font-bold text-lg">4.9/5</span>
+                  <span className="font-bold text-lg">{t('home.stats.rating')}</span> 
                 </div>
-                <p className="text-gray-600 text-sm text-center">Kundenbewertung</p>
+                <p className="text-gray-600 text-sm text-center">{t('home.stats.rating_desc')}</p> 
               </div>
               
               <div className="pro-card rounded-xl p-4 hover-lift">
                 <div className="flex items-center justify-center gap-2 text-yellow-600 mb-2">
                   <Car className="w-5 h-5" />
-                  <span className="font-bold text-lg">{allDrivers.length}+</span>
+                 
+                  <span className="font-bold text-lg">{t('home.stats.partners', { count: allDrivers.length })}</span>
                 </div>
-                <p className="text-gray-600 text-sm text-center">Aktive Partner</p>
+                <p className="text-gray-600 text-sm text-center">{t('home.stats.partners_desc')}</p> 
               </div>
             </div>
           </div>
@@ -228,8 +228,8 @@ export default function Home() {
             <div className="w-full max-w-2xl mx-auto pro-card rounded-3xl p-8 border-4 border-yellow-500">
               <div className="text-center py-12">
                 <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Lade verfügbare Fahrer</h3>
-                <p className="text-gray-600">Bitte warten Sie einen Moment...</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t('common.loading')}</h3>
+                <p className="text-gray-600">{t('common.please_wait')}</p>
               </div>
             </div>
           )
@@ -285,31 +285,31 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 glass rounded-full px-6 py-3 mb-8 warning-border animate-glow">
               <Sparkles className="w-4 h-4 text-yellow-600" />
               <span className="text-sm font-semibold text-yellow-700">
-                Premium Pannenhilfe/Abschleppdienst
+                {t('home.badge')}
               </span>
             </div>
             
             <div className="mb-8">
               <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
                 <span className="text-gray-900">
-                  {appState === 'welcome' ? 'Pannenhilfe &' : 
-                   appState === 'location-input' ? 'Standort' :
-                   appState === 'driver-selection' ? 'Fahrer' : 'Hilfe ist unterwegs!'}
+                  {appState === 'welcome' ? t('home.title').split('&')[0] + '&' : 
+                   appState === 'location-input' ? t('location.title') :
+                   appState === 'driver-selection' ? t('driver.title') : t('assignment.title')}
                 </span>
                 <br />
                 <span className="text-yellow-600 animate-pulse">
-                  {appState === 'welcome' ? 'Abschleppdienst' :
-                   appState === 'location-input' ? 'eingeben' :
-                   appState === 'driver-selection' ? 'auswählen' : 'ID bereitstellen'}
+                  {appState === 'welcome' ? t('home.title_part2') :
+                  appState === 'location-input' ? t('location.enter') :
+                  appState === 'driver-selection' ? t('driver.select_action') : t('assignment.provide_id')}
                 </span>
               </h1>
               
               {appState === 'welcome' && (
                 <div className="inline-block">
-                  <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed pro-card rounded-2xl p-6 hover-lift">
-                    <Zap className="w-6 h-6 text-yellow-600 inline mr-2 mb-1" />
-                    24/7 Ganz Deutschland • Blitzschnell • Transparent • Professionell
-                  </p>
+                <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed pro-card rounded-2xl p-6 hover-lift">
+                  <Zap className="w-6 h-6 text-yellow-600 inline mr-2 mb-1" />
+                  {t('home.subtitle')}
+                </p>
                 </div>
               )}
             </div>
@@ -321,6 +321,7 @@ export default function Home() {
 
       {appState === 'welcome' && (
         <>
+        <LandingCarousel />
         <FeaturesSection />
         <BlogCarousel />
         </>
@@ -331,10 +332,12 @@ export default function Home() {
 
 // Features showcase component - might consider extracting to separate file for better organization
 function FeaturesSection() {
+  const { t } = useLanguage()
   // Service feature configuration data
   const serviceFeatures = [
     {
       icon: Clock,
+      key: 'speed',
       title: "Blitzschnelle Hilfe",
       desc: "Unsere Partner sind in 15-30 Minuten bei Ihnen - garantiert in ganz Deutschland",
       color: "from-yellow-500 to-yellow-400",
@@ -342,6 +345,7 @@ function FeaturesSection() {
     },
     {
       icon: Shield,
+      key: 'certified',
       title: "Zertifizierte Profis", 
       desc: "Alle Partner sind geprüft, zertifiziert und versichert für maximale Sicherheit",
       color: "from-red-500 to-red-400",
@@ -349,6 +353,7 @@ function FeaturesSection() {
     },
     {
       icon: Zap,
+      key: 'tech',
       title: "Moderne Technik",
       desc: "Echtzeit-Tracking, digitale Abwicklung und modernste Abschlepptechnik",
       color: "from-yellow-500 to-red-500", 
@@ -361,25 +366,29 @@ function FeaturesSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black mb-6 text-gray-900">
-            Warum uns wählen?
+            {t('home.why_choose_us') || 'Warum uns wählen?'}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Premium Service für anspruchsvolle Kunden in ganz Deutschland
+          {t('home.premium_service') || 'Premium Service für anspruchsvolle Kunden in ganz Deutschland'}
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {serviceFeatures.map((featureItem, idx) => (
+<div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {serviceFeatures.map((feature, idx) => (
             <div 
               key={idx}
               className="pro-card rounded-2xl p-8 hover-lift group"
-              style={{ animationDelay: `${featureItem.delay}ms` }}
+              style={{ animationDelay: `${feature.delay}ms` }}
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${featureItem.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 mx-auto`}>
-                <featureItem.icon className="w-8 h-8 text-white" />
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 mx-auto`}>
+                <feature.icon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">{featureItem.title}</h3>
-              <p className="text-gray-600 text-center leading-relaxed">{featureItem.desc}</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+                {t(`home.features.${feature.key}.title`)} 
+              </h3>
+              <p className="text-gray-600 text-center leading-relaxed">
+                {t(`home.features.${feature.key}.desc`)} 
+              </p>
               
               {/* Hover effect underline animation */}
               <div className="w-0 group-hover:w-full h-1 bg-gradient-to-r from-yellow-500 to-red-500 transition-all duration-500 mt-4 mx-auto rounded-full"></div>

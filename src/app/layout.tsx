@@ -2,8 +2,11 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import Link from 'next/link'
 import Header from '@/components/Header';
+import Footer from '@/components/Footer' 
+import Script from 'next/script'
+import { LanguageProvider } from '@/context/LanguageContext';
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -14,7 +17,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Road Help GmbH' }],
   creator: 'Road Help GmbH',
   publisher: 'Road Help GmbH',
-    formatDetection: {
+  formatDetection: {
     telephone: true,
     address: true,
     email: true,
@@ -23,7 +26,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
-
   openGraph: {
     type: 'website',
     locale: 'de_DE',
@@ -40,20 +42,16 @@ export const metadata: Metadata = {
       },
     ],
   },
-
-    twitter: {
+  twitter: {
     card: 'summary_large_image',
     title: 'Pannenhilfe & Abschleppdienst - 24/7 Schnelle Hilfe',
     description: '24/7 Pannenhilfe und Abschleppdienst in ganz Deutschland. Blitzschnelle Hilfe bei Autopannen.',
     images: ['/og-image.jpg'],
   },
-
-   verification: {
+  verification: {
     google: 'PLACEHOLDER',
   },
-
 }
-
 
 export default function RootLayout({
   children,
@@ -62,42 +60,32 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
+      <head>
+        {/* Google Analytics - Global Site Tag */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KV53MLLJM7"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KV53MLLJM7');
+          `}
+        </Script>
+      </head>
       <body className={inter.className}>
-        <Header/> 
         <ErrorBoundary>
-          <div className="min-h-screen flex flex-col">
-            <main className="flex-1">
-              {children}
-            </main>
-            
-            {/* Footer with legal links */}
-            <footer className="bg-gray-900 text-white py-8">
-              <div className="container mx-auto px-4">
-                <div className="flex flex-col md:flex-row justify-between items-center">
-                  <div className="mb-4 md:mb-0">
-                    <p className="text-gray-400">
-                      © {new Date().getFullYear()} Road Help GmbH. Alle Rechte vorbehalten.
-                    </p>
-                  </div>
-                  
-                  <div className="flex space-x-6">
-                    <Link 
-                      href="/impressum" 
-                      className="text-gray-400 hover:text-white transition-colors"
-                    >
-                      Impressum
-                    </Link>
-                    <Link 
-                      href="/datenschutz" 
-                      className="text-gray-400 hover:text-white transition-colors"
-                    >
-                      Datenschutz
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </footer>
-          </div>
+          <LanguageProvider> 
+            <div className="min-h-screen flex flex-col">
+              <Header /> 
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer /> 
+            </div>
+          </LanguageProvider>
         </ErrorBoundary>
       </body>
     </html>

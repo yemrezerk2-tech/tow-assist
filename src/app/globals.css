@@ -189,3 +189,40 @@ body {
 .bg-road-black {
   background-color: var(--secondary);
 }
+.prose h1 {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.prose h2 {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.prose h3 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.prose p {
+  margin-bottom: 1rem !important;
+  line-height: 1.7 !important;
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 1rem !important;
+  padding-left: 1.5rem !important;
+}
+
+.prose blockquote {
+  border-left: 4px solid #eab308;
+  padding-left: 1rem;
+  font-style: italic;
+  margin: 1rem 0;
+}

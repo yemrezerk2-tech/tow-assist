@@ -4,6 +4,10 @@ import AdminAddressInput from '@/components/AdminAddressInput'
 import WorkingHoursInput from '@/components/WorkingHoursInput'
 import { useState, useEffect, useCallback } from 'react'
 import { Driver, Location, WorkingHours } from '@/types'
+import RichTextEditor from '@/components/RichTextEditor';
+import { supabase } from '@/lib/supabase';
+import { Images } from 'lucide-react'; 
+
 import { 
   Plus, Trash2, Edit, Save, X, Car, Phone, MapPin, Euro, 
   LogOut, Users, ClipboardList, RefreshCw, Filter, Mail, MessageCircle,
@@ -100,6 +104,9 @@ interface BlogPost {
   updated_at: string
 }
 export default function AdminPanel({ onClose }: AdminPanelProps) {
+  const [carouselImages, setCarouselImages] = useState<any[]>([]);
+  const [showCarouselForm, setShowCarouselForm] = useState(false);
+  const [editingCarousel, setEditingCarousel] = useState<any | null>(null);
   const handleClose = () => onClose();
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
   const [driverList, setDriverList] = useState<Driver[]>([])
@@ -109,7 +116,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [isDataLoading, setIsDataLoading] = useState(true)
   const [currentEditDriver, setCurrentEditDriver] = useState<Driver | null>(null)
   const [displayAddForm, setDisplayAddForm] = useState(false)
-  const [selectedTab, setSelectedTab] = useState<'drivers' | 'assignments' | 'partnerships' | 'contacts' | 'blog'>('drivers')
+  const [selectedTab, setSelectedTab] = useState<'drivers' | 'assignments' | 'partnerships' | 'contacts' | 'blog' | 'carousel'>('drivers')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [showArchivedDrivers, setShowArchivedDrivers] = useState(false)
@@ -171,7 +178,17 @@ const loadDriverData = useCallback(async () => {
     setIsDataLoading(false)
   }
 }, [showArchivedDrivers])
-
+const loadCarouselImages = useCallback(async () => {
+  try {
+    const response = await fetch('/api/carousel');
+    if (response.ok) {
+      const data = await response.json();
+      setCarouselImages(data);
+    }
+  } catch (err) {
+    console.error('Error loading carousel images:', err);
+  }
+}, []);
   const loadAssignmentData = useCallback(async () => {
     try {
       const apiUrl = statusFilter !== 'all' 
@@ -219,8 +236,52 @@ const loadDriverData = useCallback(async () => {
     loadPartnershipData()
     loadContactData()
     loadBlogPosts()
-  }, [refreshTrigger, showArchivedDrivers, loadDriverData, loadAssignmentData, loadPartnershipData, loadContactData, loadBlogPosts])
+    loadCarouselImages();
+  }, [refreshTrigger, showArchivedDrivers, loadDriverData, loadAssignmentData, loadPartnershipData, loadContactData, loadBlogPosts, loadCarouselImages])
 
+  useEffect(() => {
+
+  const assignmentsSubscription = supabase
+    .channel('assignments-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', 
+        schema: 'public',
+        table: 'assignments'
+      },
+      (payload) => {
+        console.log('Realtime update received:', payload);
+        
+        loadAssignmentData();
+        
+        loadDriverData();
+      }
+    )
+    .subscribe();
+
+  
+  const driversSubscription = supabase
+    .channel('drivers-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'drivers'
+      },
+      (payload) => {
+        console.log('Driver update received:', payload);
+        loadDriverData();
+      }
+    )
+    .subscribe();
+
+  return () => {
+    assignmentsSubscription.unsubscribe();
+    driversSubscription.unsubscribe();
+  };
+}, []); 
   // Function to restore archived driver back to active status
   const handleDriverRestore = async (driverId: string) => {
     if (!confirm('Möchten Sie diesen Fahrer wirklich wiederherstellen?\n\nDer Fahrer wird wieder in der aktiven Liste angezeigt und kann neuen Einsätzen zugewiesen werden.')) return
@@ -1158,6 +1219,17 @@ const displayWorkingHours = (workingHours: unknown): string => {
             <FileText className="w-4 h-4" />
             Blog ({blogPosts.length})
           </button>
+            <button
+onClick={() => setSelectedTab('carousel')}
+  className={`flex items-center gap-2 px-4 py-3 font-semibold border-b-2 transition-colors ${
+    selectedTab === 'carousel' 
+      ? 'border-yellow-500 text-yellow-600' 
+      : 'border-transparent text-gray-500 hover:text-gray-700'
+  }`}
+>
+  <Images className="w-4 h-4" />
+  Karussell ({carouselImages.length})
+</button>
           <button
             onClick={() => setSelectedTab('assignments')}
             className={`flex items-center gap-2 px-4 py-3 font-semibold border-b-2 transition-colors ${
@@ -1812,19 +1884,16 @@ const displayWorkingHours = (workingHours: unknown): string => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Inhalt *
-              </label>
-              <textarea
-                required
-                value={editingPost?.content || ''}
-                onChange={(e) => setEditingPost(prev => prev ? { ...prev, content: e.target.value } : null)}
-                rows={6}
-                className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 font-mono"
-                placeholder="HTML wird unterstützt"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Inhalt *
+                </label>
+                <RichTextEditor
+                  content={editingPost?.content || ''}
+                  onChange={(html) => setEditingPost(prev => prev ? { ...prev, content: html } : null)}
+                  placeholder="Schreibe deinen Blog Beitrag hier..."
+                />
+              </div>
 
 <div>
   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1909,6 +1978,236 @@ const displayWorkingHours = (workingHours: unknown): string => {
                 type="button"
                 onClick={() => setShowBlogForm(false)}
                 className="flex-1 pro-card border-2 border-gray-300 py-3 font-semibold text-gray-700 rounded-xl hover:border-red-500 transition-colors"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+{selectedTab === 'carousel' && (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <h2 className="text-2xl font-bold">Karussell Bilder</h2>
+      <button
+        onClick={() => {
+          setEditingCarousel({
+            id: '',
+            image_url: '',
+            title: '',
+            description: '',
+            link: '',
+            sort_order: carouselImages.length,
+          });
+          setShowCarouselForm(true);
+        }}
+        className="road-sign px-4 py-2 font-semibold flex items-center gap-2"
+      >
+        <Plus className="w-4 h-4" />
+        Bild hinzufügen
+      </button>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {carouselImages.map((image, index) => (
+        <div key={image.id} className="pro-card rounded-2xl p-4 border-2 border-gray-300">
+          <div className="relative h-40 mb-3">
+            <img
+              src={image.image_url}
+              alt={image.title || 'Carousel image'}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          </div>
+          {image.title && <h3 className="font-bold text-sm">{image.title}</h3>}
+          {image.description && (
+            <p className="text-xs text-gray-600 mt-1">{image.description}</p>
+          )}
+          <div className="flex justify-end gap-2 mt-3">
+            <button
+              onClick={() => {
+                setEditingCarousel(image);
+                setShowCarouselForm(true);
+              }}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              onClick={async () => {
+                if (!confirm('Bild löschen?')) return;
+                try {
+                  const res = await fetch(`/api/carousel/${image.id}`, {
+                    method: 'DELETE',
+                  });
+                  if (res.ok) {
+                    setRefreshTrigger(prev => prev + 1);
+                  }
+                } catch (err) {
+                  console.error(err);
+                  alert('Fehler beim Löschen');
+                }
+              }}
+              className="p-2 text-red-600 hover:bg-red-50 rounded"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {carouselImages.length === 0 && (
+      <div className="text-center pro-card rounded-2xl p-12 border-4 border-gray-400">
+        <div className="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Images className="w-8 h-8 text-white" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Keine Karussell Bilder</h3>
+        <p className="text-gray-600 mb-6">
+          Fügen Sie Bilder hinzu, die auf der Startseite angezeigt werden sollen.
+        </p>
+      </div>
+    )}
+
+    {/* Carousel Image Form Modal */}
+    {showCarouselForm && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-900">
+              {editingCarousel?.id ? 'Bild bearbeiten' : 'Bild hinzufügen'}
+            </h3>
+            <button
+              onClick={() => setShowCarouselForm(false)}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!editingCarousel) return;
+
+              try {
+                const url = editingCarousel.id
+                  ? `/api/carousel/${editingCarousel.id}`
+                  : '/api/carousel';
+                const method = editingCarousel.id ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                  method,
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(editingCarousel),
+                });
+
+                if (res.ok) {
+                  setShowCarouselForm(false);
+                  setEditingCarousel(null);
+                  setRefreshTrigger(prev => prev + 1);
+                } else {
+                  alert('Fehler beim Speichern');
+                }
+              } catch (err) {
+                console.error(err);
+                alert('Fehler beim Speichern');
+              }
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bild
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+
+                  try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const res = await fetch('/api/upload-carousel', {
+                      method: 'POST',
+                      body: formData,
+                    });
+
+                    if (!res.ok) throw new Error('Upload failed');
+
+                    const { url } = await res.json();
+                    setEditingCarousel((prev: any) => ({ ...prev, image_url: url }));
+                  } catch (err) {
+                    console.error(err);
+                    alert('Upload fehlgeschlagen');
+                  }
+                }}
+                className="w-full p-2 border-2 border-gray-300 rounded-xl"
+              />
+              {editingCarousel?.image_url && (
+                <div className="mt-2 relative h-32">
+                  <img
+                    src={editingCarousel.image_url}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Titel (optional)
+              </label>
+              <input
+                type="text"
+                value={editingCarousel?.title || ''}
+                onChange={(e) => setEditingCarousel((prev: any) => ({ ...prev, title: e.target.value }))}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Beschreibung (optional)
+              </label>
+              <textarea
+                value={editingCarousel?.description || ''}
+                onChange={(e) => setEditingCarousel((prev: any) => ({ ...prev, description: e.target.value }))}
+                rows={2}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Link (optional)
+              </label>
+              <input
+                type="url"
+                value={editingCarousel?.link || ''}
+                onChange={(e) => setEditingCarousel((prev: any) => ({ ...prev, link: e.target.value }))}
+                className="w-full p-3 border-2 border-gray-300 rounded-xl"
+                placeholder="https://example.com"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="submit"
+                className="flex-1 road-sign py-3 font-semibold"
+              >
+                Speichern
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCarouselForm(false)}
+                className="flex-1 pro-card border-2 border-gray-300 py-3 font-semibold text-gray-700 rounded-xl hover:border-red-500"
               >
                 Abbrechen
               </button>

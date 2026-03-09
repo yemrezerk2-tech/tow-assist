@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import ContactForm from '@/components/ContactForm'
 import { ArrowLeft, Mail, Phone, Clock, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function ContactPage() {
+  const { t } = useLanguage()
   const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
 
@@ -30,10 +32,10 @@ export default function ContactPage() {
             </button>
             <div className="flex-1">
               <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-4">
-                <span className="text-gray-900">Kontakt</span>
+                <span className="text-gray-900">{t('nav.contact')}</span>
               </h1>
               <p className="text-xl text-gray-600 max-w-3xl">
-                Wir sind für Sie da. Kontaktieren Sie uns bei Fragen oder Anliegen.
+                {t('contact.subtitle') || 'Wir sind für Sie da. Kontaktieren Sie uns bei Fragen oder Anliegen.'}
               </p>
             </div>
           </div>
@@ -42,7 +44,7 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="lg:col-span-1 space-y-6">
               <div className="pro-card rounded-2xl p-6 border-2 border-blue-500">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Kontaktinformation</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('contact.info_title') || 'Kontaktinformation'}</h2>
                 
                 <div className="space-y-4">
                   <div className="flex items-start gap-4">
@@ -50,9 +52,9 @@ export default function ContactPage() {
                       <Phone className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Telefon</h3>
+                      <h3 className="font-semibold text-gray-900">{t('contact.phone') || 'Telefon'}</h3>
                       <p className="text-gray-600">+49 40 12345678</p>
-                      <p className="text-sm text-gray-500">24/7 erreichbar</p>
+                      <p className="text-sm text-gray-500">{t('contact.phone_hours') || '24/7 erreichbar'}</p>
                     </div>
                   </div>
 
@@ -63,7 +65,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold text-gray-900">E-Mail</h3>
                       <p className="text-gray-600">info@pannenhelfer.de</p>
-                      <p className="text-sm text-gray-500">Antwort innerhalb 24h</p>
+                      <p className="text-sm text-gray-500">{t('contact.email_response') || 'Antwort innerhalb 24h'}</p>
                     </div>
                   </div>
 
@@ -72,9 +74,9 @@ export default function ContactPage() {
                       <Clock className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Öffnungszeiten</h3>
-                      <p className="text-gray-600">24 Stunden, 7 Tage die Woche</p>
-                      <p className="text-sm text-gray-500">Notdienst immer verfügbar</p>
+                      <h3 className="font-semibold text-gray-900">{t('contact.hours') || 'Öffnungszeiten'}</h3>
+                      <p className="text-gray-600">{t('contact.hours_24_7') || '24 Stunden, 7 Tage die Woche'}</p>
+                      <p className="text-sm text-gray-500">{t('contact.emergency_available') || 'Notdienst immer verfügbar'}</p>
                     </div>
                   </div>
 
@@ -84,8 +86,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Standort</h3>
-                      <p className="text-gray-600">Ganz Deutschland</p>
-                      <p className="text-sm text-gray-500">Bundesweiter Service</p>
+                      <p className="text-gray-600">{t('contact.service_area') || 'Ganz Deutschland'}</p>
+                      <p className="text-sm text-gray-500">{t('contact.nationwide') || 'Bundesweiter Service'}</p>
                     </div>
                   </div>
                 </div>
@@ -93,19 +95,19 @@ export default function ContactPage() {
 
               {/* FAQ Section */}
               <div className="pro-card rounded-2xl p-6 border-2 border-yellow-500">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Häufige Fragen</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('contact.faq_title') || 'Häufige Fragen'}</h3>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <p className="font-semibold text-gray-900">Wie schnell kommt Hilfe?</p>
-                    <p className="text-gray-600">In der Regel innerhalb von 15-30 Minuten.</p>
+                    <p className="font-semibold text-gray-900">{t('contact.faq_speed_q') || 'Wie schnell kommt Hilfe?'}</p>
+                    <p className="text-gray-600">{t('contact.faq_speed_a') || 'In der Regel innerhalb von 15-30 Minuten.'}</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Kostenlose Anfrage?</p>
-                    <p className="text-gray-600">Ja, die Anfrage ist kostenlos und unverbindlich.</p>
+                    <p className="font-semibold text-gray-900">{t('contact.faq_free_q') || 'Kostenlose Anfrage?'}</p>
+                    <p className="text-gray-600">{t('contact.faq_free_a') || 'Ja, die Anfrage ist kostenlos und unverbindlich.'}</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">24/7 verfügbar?</p>
-                    <p className="text-gray-600">Ja, rund um die Uhr an 365 Tagen im Jahr.</p>
+                    <p className="font-semibold text-gray-900">{t('contact.faq_24_7_q') || '24/7 verfügbar?'}</p>
+                    <p className="text-gray-600">{t('contact.faq_24_7_a') || 'Ja, rund um die Uhr an 365 Tagen im Jahr.'}</p>
                   </div>
                 </div>
               </div>

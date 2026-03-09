@@ -3,7 +3,7 @@
 import { Driver, Location } from '@/types'
 import { Star, Clock, Car, Phone, Check, Shield, Zap, ArrowLeft } from 'lucide-react'
 import { useState} from 'react'
-
+import { useLanguage } from '@/context/LanguageContext'
 interface DriverListProps {
   drivers: Driver[]
   selectedDriver: Driver | null
@@ -21,6 +21,7 @@ export default function DriverList({
   onBack,
   onNewRequest 
 }: DriverListProps) {
+  const { t } = useLanguage()
   const [isCreatingAssignment, setIsCreatingAssignment] = useState(false)
   const [helpId, setHelpId] = useState<string>('')
   // Twilio integration - this is the main contact number
@@ -114,7 +115,7 @@ const createHelpId = () => {
           </div>
           
           <h2 className="text-3xl font-black text-gray-900 mb-4">
-            Fahrer zugewiesen!
+            {t('assignment.title')}
           </h2>
           
           {/* Selected driver details card */}
@@ -129,27 +130,27 @@ const createHelpId = () => {
                   <Clock className="w-4 h-4" />
                   <span className="font-bold">{selectedDriver.estimatedArrival} min</span>
                 </div>
-                <p className="text-xs text-gray-500">Ankunftszeit</p>
+                <p className="text-xs text-gray-500">{t('driver.eta')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-yellow-600 mb-1">
                   <Star className="w-4 h-4" />
                   <span className="font-bold">{selectedDriver.rating}</span>
                 </div>
-                <p className="text-xs text-gray-500">Bewertung</p>
+                <p className="text-xs text-gray-500">{t('driver.rating')}</p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-green-600 mb-1">
                   <Car className="w-4 h-4" />
                   <span className="font-bold">{selectedDriver.vehicleType}</span>
                 </div>
-                <p className="text-xs text-gray-500">Fahrzeug</p>
+                <p className="text-xs text-gray-500">{selectedDriver.vehicleType}</p>
               </div>
               <div className="text-center">
                 <div className={`px-2 py-1 rounded-lg text-xs font-bold border ${getServiceTypeColor(selectedDriver.serviceType)}`}>
                   {getServiceTypeText(selectedDriver.serviceType)}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Service Typ</p>
+                <p className="text-xs text-gray-500 mt-1">{t('driver.service_type')}</p>
               </div>
             </div>
           </div> 
@@ -158,15 +159,15 @@ const createHelpId = () => {
           <div className="road-sign border-4 border-black rounded-2xl p-6 mb-6 animate-glow">
             <div className="text-center mb-4">
               <Shield className="w-12 h-12 text-black mx-auto mb-2" />
-              <h3 className="text-lg font-bold text-black mb-1">Ihre Hilfe-ID</h3>
+              <h3 className="text-lg font-bold text-black mb-1">{t('assignment.help_id')}</h3>
               <p className="text-gray-700 text-sm mb-4">
-                Geben Sie diese ID am Telefon durch
+                {t('assignment.help_id_desc')}
               </p>
               <div className="text-4xl font-black text-black tracking-wider font-mono bg-black bg-opacity-10 py-2 px-4 rounded-lg">
                 {helpId}
               </div>
               <p className="text-gray-700 text-sm mt-3">
-                Notieren Sie sich diese ID für Ihren Anruf
+                {t('assignment.help_id_note')}
               </p>
             </div>
           </div>
@@ -175,32 +176,32 @@ const createHelpId = () => {
             {/* Call to action with phone number */}
             <div className="bg-red-50 border-2 border-red-500 rounded-2xl p-4">
               <p className="text-red-700 font-semibold text-center mb-2">
-                WICHTIG: Rufen Sie jetzt an und nennen Sie Ihre Hilfe-ID
+                {t('assignment.call_action')}
               </p>
               <a 
                 href={`tel:${contactPhone}`}
                 className="inline-flex items-center justify-center w-full road-sign-red rounded-2xl px-8 py-4 text-lg shadow-2xl transform transition-all duration-300 hover:scale-105"
               >
                 <Phone className="w-6 h-6 mr-3" />
-                JETZT ANRUFEN: {formatPhoneNumber(contactPhone)}
+                {t('assignment.call_button', { phone: formatPhoneNumber(contactPhone) })}
               </a>
             </div>
 
             {/* Process explanation */}
             <div className="bg-blue-50 border-2 border-blue-500 rounded-2xl p-4">
-              <h4 className="font-bold text-blue-900 mb-2 text-center">So funktioniert es:</h4>
+              <h4 className="font-bold text-blue-900 mb-2 text-center">{t('assignment.how_it_works')}</h4>
               <ol className="text-blue-800 text-sm space-y-2 text-left">
                 <li className="flex items-start gap-2">
                   <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
-                  <span>Rufen Sie die Nummer oben an</span>
+                  <span>{t('assignment.step1')}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                  <span>Nennen Sie dem Mitarbeiter Ihre Hilfe-ID: <strong className="font-mono">{helpId}</strong></span>
+                  <span>{t('assignment.step2', { id: helpId })} <strong className="font-mono">{helpId}</strong></span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
-                  <span>Der Fahrer wird zu Ihnen geschickt</span>
+                  <span>{t('assignment.step3')}</span>
                 </li>
               </ol>
             </div>
@@ -210,7 +211,7 @@ const createHelpId = () => {
               className="w-full pro-card border-2 border-gray-300 text-gray-700 rounded-2xl py-4 hover:border-yellow-500 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-5 h-5" />
-              Neue Hilfe anfordern
+              {t('assignment.new_request')}
             </button>
           </div>
         </div>
@@ -230,13 +231,13 @@ const createHelpId = () => {
         </button>
         <div className="flex-1">
           <h2 className="text-3xl font-black text-gray-900">
-            Verfügbare Fahrer
+            {t('driver.title')}
           </h2>
           <p className="text-gray-600 mt-2">
-            {availableDrivers.length} Fahrer in Ihrer Nähe gefunden
+            {t('driver.found', { count: availableDrivers.length })}
             {userLocation && (
               <span className="text-sm text-gray-500 ml-2">
-                (Standort: {userLocation.address})
+                ({t('location.at') || 'Standort'}: {userLocation.address})
               </span>
             )}
           </p>
@@ -291,7 +292,7 @@ const createHelpId = () => {
                   
                   {/* Pricing info */}
                   <div className="flex items-center gap-2 text-green-600">
-                    <span className="font-bold text-sm">Ab {driverItem.basePrice}€</span>
+                    <span className="font-bold text-sm">{t('driver.price_from', { price: driverItem.basePrice })}</span>
                   </div>
                   
                   {/* Service type badge */}
@@ -303,7 +304,7 @@ const createHelpId = () => {
                 {/* Service areas display */}
                 {driverItem.serviceAreas && driverItem.serviceAreas.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-xs text-gray-600 mb-1">Servicegebiete:</p>
+                    <p className="text-xs text-gray-600 mb-1">{t('driver.service_areas')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {driverItem.serviceAreas.slice(0, 3).map((area, areaIndex) => (
                         <span key={areaIndex} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
@@ -317,7 +318,7 @@ const createHelpId = () => {
                 {/* Features display */}
                 {driverItem.features && driverItem.features.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-600 mb-1">Leistungen:</p>
+                    <p className="text-xs text-gray-600 mb-1">{t('driver.features')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {driverItem.features.slice(0, 3).map((feature, featureIndex) => (
                         <span key={featureIndex} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
@@ -339,7 +340,7 @@ const createHelpId = () => {
                   <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto"></div>
                 ) : (
                   <span className="relative flex items-center gap-2 justify-center">
-                    Auswählen
+                    {t('driver.select')}
                     <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -353,7 +354,7 @@ const createHelpId = () => {
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span className="text-sm text-green-600 font-semibold">Jetzt verfügbar</span>
               <span className="text-sm text-gray-500 ml-auto">
-                ETA: {driverItem.estimatedArrival} Minuten
+                {t('driver.eta_minutes', { minutes: driverItem.estimatedArrival })}
               </span>
             </div>
           </div>
@@ -368,15 +369,13 @@ const createHelpId = () => {
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Keine Fahrer verfügbar</h3>
           <p className="text-gray-600 mb-4">
-            Momentan sind keine Fahrer in Ihrer Nähe verfügbar. 
-            <br />
-            Bitte versuchen Sie es später erneut oder wählen Sie einen anderen Standort.
+            {t('driver.no_drivers_desc')}
           </p>
           <button
             onClick={onBack}
             className="road-sign px-6 py-3 font-semibold transition-all duration-300 hover:scale-105"
           >
-            Anderen Standort wählen
+           {t('driver.other_location')}
           </button>
         </div>
       )}
@@ -388,13 +387,12 @@ const createHelpId = () => {
             <Shield className="w-4 h-4 text-black" />
           </div>
           <div>
-            <h4 className="font-bold text-gray-900 mb-2">Sicher und geschützt</h4>
+            <h4 className="font-bold text-gray-900 mb-2">{t('driver.security_title') || 'Sicher und geschützt'}</h4>
             <p className="text-gray-600 text-sm mb-3">
-              Alle unsere Fahrer sind geprüft, versichert und zertifiziert. 
-              Ihre Daten werden verschlüsselt übertragen und nicht an Dritte weitergegeben.
+              {t('driver.security_desc') || 'Alle unsere Fahrer sind geprüft, versichert und zertifiziert. Ihre Daten werden verschlüsselt übertragen und nicht an Dritte weitergegeben.'}
             </p>
             <div className="text-xs text-gray-500">
-              • Geprüfte Fachbetriebe • 24/7 Verfügbarkeit • Festpreis-Garantie
+              {t('driver.security_badges') || '• Geprüfte Fachbetriebe • 24/7 Verfügbarkeit • Festpreis-Garantie'}
             </div>
           </div>
         </div>
@@ -402,29 +400,29 @@ const createHelpId = () => {
 
       {/* Process explanation card */}
       <div className="mt-6 pro-card rounded-2xl p-6 border-2 border-blue-500 bg-blue-50">
-        <h4 className="font-bold text-blue-900 mb-3 text-center">So erhalten Sie Hilfe:</h4>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-          <div className="text-center">
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">1</div>
-            <p className="text-blue-800 font-semibold">Fahrer auswählen</p>
-            <p className="text-blue-600 text-xs">Wählen Sie einen verfügbaren Fahrer</p>
-          </div>
-          <div className="text-center">
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">2</div>
-            <p className="text-blue-800 font-semibold">Hilfe-ID erhalten</p>
-            <p className="text-blue-600 text-xs">Notieren Sie sich Ihre persönliche ID</p>
-          </div>
-          <div className="text-center">
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">3</div>
-            <p className="text-blue-800 font-semibold">Hotline anrufen</p>
-            <p className="text-blue-600 text-xs">Rufen Sie an und nennen Sie Ihre ID</p>
-          </div>
-          <div className="text-center">
-            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">4</div>
-            <p className="text-blue-800 font-semibold">Hilfe erhalten</p>
-            <p className="text-blue-600 text-xs">Der Fahrer kommt zu Ihrem Standort</p>
-          </div>
+      <h4 className="font-bold text-blue-900 mb-3 text-center">{t('driver.how_it_works_title') || 'So erhalten Sie Hilfe:'}</h4>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">1</div>
+          <p className="text-blue-800 font-semibold">{t('driver.step1_title') || 'Fahrer auswählen'}</p>
+          <p className="text-blue-600 text-xs">{t('driver.step1_desc') || 'Wählen Sie einen verfügbaren Fahrer'}</p>
         </div>
+        <div className="text-center">
+          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">2</div>
+          <p className="text-blue-800 font-semibold">{t('driver.step2_title') || 'Hilfe-ID erhalten'}</p>
+          <p className="text-blue-600 text-xs">{t('driver.step2_desc') || 'Notieren Sie sich Ihre persönliche ID'}</p>
+        </div>
+        <div className="text-center">
+          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">3</div>
+          <p className="text-blue-800 font-semibold">{t('driver.step3_title') || 'Hotline anrufen'}</p>
+          <p className="text-blue-600 text-xs">{t('driver.step3_desc') || 'Rufen Sie an und nennen Sie Ihre ID'}</p>
+        </div>
+        <div className="text-center">
+          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">4</div>
+          <p className="text-blue-800 font-semibold">{t('driver.step4_title') || 'Hilfe erhalten'}</p>
+          <p className="text-blue-600 text-xs">{t('driver.step4_desc') || 'Der Fahrer kommt zu Ihrem Standort'}</p>
+        </div>
+      </div>
       </div>
     </div>
   )

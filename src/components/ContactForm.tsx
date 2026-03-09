@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { User, Phone, Mail, MessageCircle, Send, Check } from 'lucide-react'
-
+import { useLanguage } from '@/context/LanguageContext'
 interface ContactFormData {
   name: string
   email: string
@@ -11,6 +11,7 @@ interface ContactFormData {
 }
 
 export default function ContactForm() {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -56,7 +57,7 @@ export default function ContactForm() {
       }
     } catch (err) {
       console.error('Contact form submission error:', err)
-      alert('Es gab ein Problem beim Senden des Formulars. Bitte versuchen Sie es später erneut.')
+      alert(t('contact.form.error') || 'Es gab ein Problem beim Senden des Formulars. Bitte versuchen Sie es später erneut.')
     } finally {
       setIsSubmitting(false)
     }
@@ -69,15 +70,15 @@ export default function ContactForm() {
         <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl font-black text-gray-900 mb-4">Nachricht gesendet!</h2>
+        <h2 className="text-3xl font-black text-gray-900 mb-4">{t('contact.form.success_title')}</h2>
         <p className="text-gray-600 mb-6 text-lg">
-          Vielen Dank für Ihre Nachricht. Wir werden uns so schnell wie möglich bei Ihnen melden.
+           {t('contact.form.success_message')}
         </p>
         <button
           onClick={() => setIsSubmitted(false)}
           className="road-sign px-8 py-3 font-semibold transition-all duration-300 hover:scale-105"
         >
-          Neue Nachricht senden
+          {t('contact.form.new_message')}
         </button>
       </div>
     )
@@ -89,9 +90,9 @@ export default function ContactForm() {
         <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <MessageCircle className="w-8 h-8 text-white" />
         </div>
-        <h2 className="text-3xl font-black text-gray-900 mb-2">Kontaktieren Sie uns</h2>
+        <h2 className="text-3xl font-black text-gray-900 mb-2">{t('contact.form.title')}</h2>
         <p className="text-gray-600 text-lg">
-          Haben Sie Fragen? Wir helfen Ihnen gerne weiter.
+          {t('contact.form.subtitle')}
         </p>
       </div>
 
@@ -101,7 +102,7 @@ export default function ContactForm() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <User className="w-4 h-4 inline mr-2" />
-              Name *
+              {t('contact.form.name_label')} *
             </label>
             <input
               type="text"
@@ -110,14 +111,14 @@ export default function ContactForm() {
               onChange={updateFormField}
               required
               className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300"
-              placeholder="Ihr Name"
+              placeholder={t('contact.form.name_placeholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <Phone className="w-4 h-4 inline mr-2" />
-              Telefon *
+              {t('contact.form.phone_label')} *
             </label>
             <input
               type="tel"
@@ -135,7 +136,7 @@ export default function ContactForm() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Mail className="w-4 h-4 inline mr-2" />
-            E-Mail Adresse *
+            {t('contact.form.email_label')} *
           </label>
           <input
             type="email"
@@ -144,7 +145,7 @@ export default function ContactForm() {
             onChange={updateFormField}
             required
             className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300"
-            placeholder="ihre@email.de"
+            placeholder={t('contact.form.email_placeholder')}
           />
         </div>
 
@@ -152,7 +153,7 @@ export default function ContactForm() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <MessageCircle className="w-4 h-4 inline mr-2" />
-            Ihre Nachricht *
+          {t('contact.form.message_label')} *
           </label>
           <textarea
             name="message"
@@ -161,7 +162,7 @@ export default function ContactForm() {
             rows={5}
             required
             className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300"
-            placeholder="Wie können wir Ihnen helfen?"
+            placeholder={t('contact.form.message_placeholder')}
           />
         </div>
 
@@ -177,7 +178,7 @@ export default function ContactForm() {
             ) : (
               <>
                 <Send className="w-5 h-5" />
-                Nachricht senden
+                {t('contact.form.submit')}
               </>
             )}
           </button>
@@ -185,7 +186,7 @@ export default function ContactForm() {
 
         {/* Response time note */}
         <div className="text-center text-sm text-gray-500">
-          Wir antworten normalerweise innerhalb von 24 Stunden.
+          {t('contact.form.response_note')}
         </div>
       </form>
     </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Car, User, Phone, Mail, MapPin, Building, Send, Check } from 'lucide-react'
-
+import { useLanguage } from '@/context/LanguageContext'
 interface PartnershipFormData {
   companyName: string
   contactPerson: string
@@ -14,6 +14,7 @@ interface PartnershipFormData {
 }
 
 export default function PartnershipForm() {
+  const { t } = useLanguage()
   const [partnershipData, setPartnershipData] = useState<PartnershipFormData>({
     companyName: '',
     contactPerson: '',
@@ -79,16 +80,15 @@ export default function PartnershipForm() {
         <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl font-black text-gray-900 mb-4">Vielen Dank!</h2>
+        <h2 className="text-3xl font-black text-gray-900 mb-4">{t('partners.form.success_title')}</h2>
         <p className="text-gray-600 mb-6 text-lg">
-          Ihre Partnerschaftsanfrage wurde erfolgreich übermittelt. 
-          Wir werden uns innerhalb von 24 Stunden bei Ihnen melden.
+          {t('partners.form.success_message')}
         </p>
         <button
           onClick={() => setFormSubmitted(false)}
           className="road-sign px-8 py-3 font-semibold transition-all duration-300 hover:scale-105"
         >
-          Neue Anfrage senden
+         {t('partners.form.new_request')}
         </button>
       </div>
     )
@@ -100,9 +100,9 @@ export default function PartnershipForm() {
         <div className="w-16 h-16 road-sign rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Car className="w-8 h-8 text-black" />
         </div>
-        <h2 className="text-3xl font-black text-gray-900 mb-2">Partner werden</h2>
+        <h2 className="text-3xl font-black text-gray-900 mb-2">{t('partners.form.title')}</h2>
         <p className="text-gray-600 text-lg">
-          Werden Sie Teil unseres Netzwerks und bieten Sie Ihre Abschlepp- und Pannenhilfe-Dienste an
+          {t('partners.form.subtitle')}
         </p>
       </div>
 
@@ -111,13 +111,13 @@ export default function PartnershipForm() {
           {/* Company details section */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-900 border-b-2 border-yellow-500 pb-2">
-              Unternehmensinformation
+              {t('partners.form.company_section')}
             </h3>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Building className="w-4 h-4 inline mr-2" />
-                Firmenname *
+              {t('partners.form.company_label')} *
               </label>
               <input
                 type="text"
@@ -126,14 +126,14 @@ export default function PartnershipForm() {
                 onChange={updateFormData}
                 required
                 className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300"
-                placeholder="Ihr Firmenname"
+                placeholder={t('partners.form.company_placeholder')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <User className="w-4 h-4 inline mr-2" />
-                Ansprechpartner *
+                {t('partners.form.contact_label')} *
               </label>
               <input
                 type="text"
@@ -142,14 +142,14 @@ export default function PartnershipForm() {
                 onChange={updateFormData}
                 required
                 className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300"
-                placeholder="Vor- und Nachname"
+                placeholder={t('partners.form.contact_placeholder')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Mail className="w-4 h-4 inline mr-2" />
-                E-Mail Adresse *
+                {t('partners.form.email_label')} *
               </label>
               <input
                 type="email"
@@ -158,7 +158,7 @@ export default function PartnershipForm() {
                 onChange={updateFormData}
                 required
                 className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300"
-                placeholder="ihre@email.de"
+                placeholder={t('partners.form.email_placeholder')}
               />
             </div>
           </div>
@@ -166,13 +166,13 @@ export default function PartnershipForm() {
           {/* Service details section */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-900 border-b-2 border-yellow-500 pb-2">
-              Service Informationen
+        {t('partners.form.service_section')}
             </h3>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Phone className="w-4 h-4 inline mr-2" />
-                Telefonnummer *
+                {t('partners.form.phone_label')} *
               </label>
               <input
                 type="tel"
@@ -188,7 +188,7 @@ export default function PartnershipForm() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="w-4 h-4 inline mr-2" />
-                Stadt *
+             {t('partners.form.city_label')} *
               </label>
               <input
                 type="text"
@@ -197,14 +197,14 @@ export default function PartnershipForm() {
                 onChange={updateFormData}
                 required
                 className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300"
-                placeholder="Ihre Stadt"
+                placeholder={t('partners.form.city_placeholder')}
               />
             </div>
 
             {/* Service type dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Service-Typ *
+             {t('partners.form.service_type_label')} *
               </label>
               <select
                 name="serviceType"
@@ -213,9 +213,9 @@ export default function PartnershipForm() {
                 required
                 className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300"
               >
-                <option value="towing">Abschleppdienst</option>
-                <option value="repair">Pannenhilfe</option>
-                <option value="both">Beides</option>
+                <option value="towing">{t('partners.form.service_towing')}</option>
+                <option value="repair">{t('partners.form.service_repair')}</option>
+                <option value="both">{t('partners.form.service_both')}</option>
               </select>
             </div>
           </div>
@@ -224,7 +224,7 @@ export default function PartnershipForm() {
         {/* Optional message field */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Zusätzliche Nachricht (optional)
+      {t('partners.form.message_label')}
           </label>
           <textarea
             name="message"
@@ -232,7 +232,7 @@ export default function PartnershipForm() {
             onChange={updateFormData}
             rows={4}
             className="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300"
-            placeholder="Erzählen Sie uns mehr über Ihr Unternehmen oder spezielle Dienstleistungen..."
+            placeholder={t('partners.form.message_placeholder')}
           />
         </div>
 
@@ -248,7 +248,7 @@ export default function PartnershipForm() {
             ) : (
               <>
                 <Send className="w-5 h-5" />
-                Anfrage senden
+              {t('partners.form.submit')}
               </>
             )}
           </button>
@@ -256,7 +256,7 @@ export default function PartnershipForm() {
 
         {/* Footer note about response time */}
         <div className="text-center text-sm text-gray-500">
-          Wir melden uns innerhalb von 24 Stunden bei Ihnen. Ihre Daten werden vertraulich behandelt.
+          {t('partners.form.response_note')}
         </div>
       </form>
     </div>
