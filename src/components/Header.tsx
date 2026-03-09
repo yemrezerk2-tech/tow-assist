@@ -31,7 +31,11 @@ export default function Header() {
           {/* Logo / Brand */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 md:w-10 md:h-10 road-sign rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Car className="w-5 h-5 text-black" />
+              <img
+                src="/logo.png"
+                alt="Road Help Logo"
+                className="w-6 h-6 object-contain"
+              />
             </div>
             <span className="text-xl font-black text-gray-900 hidden sm:inline">
               Road Help
