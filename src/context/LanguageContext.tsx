@@ -49,9 +49,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       return key;
     }
 
-    if (params) {
-      return value.replace(/\{\{(\w+)\}\}/g, (_, p) => String(params[p] || `{{${p}}}`));
-    }
+if (params) {
+  let result = value;
+  Object.entries(params).forEach(([paramKey, paramValue]) => {
+    result = result.replace(new RegExp(`\\{\\{${paramKey}\\}\\}`, 'g'), String(paramValue));
+    result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
+  });
+  return result;
+}
     return value;
   };
 

@@ -38,7 +38,7 @@
       "eta_desc": "Überall in Deutschland",
       "rating": "4.9/5",
       "rating_desc": "Kundenbewertung",
-      "partners": "{{count}}+",
+      "partners": "{count}+",
       "partners_desc": "Aktive Partner"
     },
     "features": {
@@ -183,7 +183,7 @@
   },
   "driver": {
     "title": "Verfügbare Fahrer",
-    "found": "{{count}} Fahrer in Ihrer Nähe gefunden",
+    "found": "{count} Fahrer in Ihrer Nähe gefunden",
     "select": "Auswählen",
     "select_action": "auswählen",
     "eta": "Ankunftszeit",
