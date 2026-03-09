@@ -39,35 +39,39 @@ export default function Header() {
           </Link>
 
           {/* Navigation Links */}
-          <nav className="flex items-center justify-end gap-3 sm:gap-4 md:gap-6">
+          <nav className="flex items-center gap-1 sm:gap-2 md:gap-3">
             <Link
               href="/partners"
-              className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              className="flex items-center justify-center gap-2 w-9 h-9 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
               title={t('nav.partners')}
             >
               <Users className="w-4 h-4" />
-              <span className="text-sm md:text-base font-medium">{t('nav.partners')}</span>
+              <span className="hidden md:inline text-sm font-medium">{t('nav.partners')}</span>
             </Link>
             <Link
               href="/contact"
-              className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              className="flex items-center justify-center gap-2 w-9 h-9 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
             title={t('nav.contact')}
             >
               <Mail className="w-4 h-4" />
-              <span className="text-sm md:text-base font-medium">{t('nav.contact')}</span>
+              <span className="hidden md:inline text-sm font-medium whitespace-nowrap">
+                          {t('nav.contact')}
+                        </span>
             </Link>
             <Link
               href="/blog"
-              className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+              className="flex items-center justify-center gap-2 w-9 h-9 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
             title={t('nav.blog')}
             >
               <FileText className="w-4 h-4" />
-              <span className="text-sm md:text-base font-medium">{t('nav.blog')}</span>
+                <span className="hidden md:inline text-sm font-medium whitespace-nowrap">
+                  {t('nav.blog')}
+                </span>
             </Link>
             {pathname === '/' && showAdminButton && (
               <Link
                 href="/admin/login"
-                className="flex items-center justify-center w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
+                className="flex items-center justify-center gap-2 w-9 h-9 md:w-auto md:h-auto md:px-4 md:py-2 rounded-xl text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-all duration-300"
                 title="Admin Panel"
               
               >
