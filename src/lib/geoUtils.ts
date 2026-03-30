@@ -70,6 +70,7 @@ export function findClosestDrivers(userCoords: Coordinates, driversList: Driver[
     })
     .filter(driverRecord => {
       const isCurrentlyAvailable = driverRecord.available && driverRecord.manuallyOnline
+      const driverMaxDistance = driverRecord.maxDistance || maxRange
       const isWithinRange = driverRecord.distance <= maxRange
       const hasValidLocation = driverRecord.latitude && driverRecord.longitude
 
